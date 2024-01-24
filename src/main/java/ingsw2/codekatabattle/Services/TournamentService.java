@@ -59,4 +59,21 @@ public class TournamentService {
         }
     }
 
+    public ServerResponse subscribeToTournament(String name, String username, String keyword){
+
+        ServerResponse result = null;
+        if(keyword == null) {
+            result = tournamentDAO.subscribeToTournament(name, username, TournamentVisibility.PUBLIC);
+        }else
+            result = tournamentDAO.subscribeToTournament(keyword, username, TournamentVisibility.PRIVATE);
+
+        if (result == ServerResponse.USER_SUCCESSFULLY_SUBSCRIBED_TO_TOURNAMENT) {
+            log.info("The student" + username + " has successfully subscribed to a tournament");
+            //notificationService.notifyAllUsers(); //TODO:
+        } else
+            log.error(ServerResponse.toString(result));
+
+        return result;
+    }
+
 }
