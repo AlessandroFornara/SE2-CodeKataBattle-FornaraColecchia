@@ -19,7 +19,7 @@ public class StudentTournamentController {
     private final TournamentService tournamentService;
 
     @PostMapping("/subscribe")
-    public ResponseEntity<?> subscribePublic(@Valid @RequestBody SubscribeTntDTO subscribeTntDTO){
+    public ResponseEntity<?> subscribe(@Valid @RequestBody SubscribeTntDTO subscribeTntDTO){
 
         ServerResponse result;
         if(subscribeTntDTO.isPublic())

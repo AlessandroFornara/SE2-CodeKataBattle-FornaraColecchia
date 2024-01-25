@@ -3,6 +3,7 @@ package ingsw2.codekatabattle.Model;
 public enum ServerResponse {
 
     EMAIL_OR_USERNAME_NOT_AVAILABLE,
+    INVALID_CREDENTIALS,
     PRIVATE_TOURNAMENT_CREATED,
     PUBLIC_TOURNAMENT_CREATED,
     REGISTRATION_DEADLINE_NOT_VALID,
@@ -18,6 +19,7 @@ public enum ServerResponse {
 
 
             case EMAIL_OR_USERNAME_NOT_AVAILABLE -> {return "The provided email or username is already registered in our system";}
+            case INVALID_CREDENTIALS -> {return "Invalid username or password";}
             case PRIVATE_TOURNAMENT_CREATED -> {return "The PRIVATE tournament has been created";}
             case PUBLIC_TOURNAMENT_CREATED -> {return "The PUBLIC tournament has been created";}
             case REGISTRATION_DEADLINE_NOT_VALID -> {return "Registration deadline not valid";}
