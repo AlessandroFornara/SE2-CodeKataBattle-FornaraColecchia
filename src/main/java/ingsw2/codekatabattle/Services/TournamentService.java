@@ -1,8 +1,11 @@
 package ingsw2.codekatabattle.Services;
 
 import ingsw2.codekatabattle.DAO.TournamentDAO;
+import ingsw2.codekatabattle.DAO.UserDAO;
 import ingsw2.codekatabattle.Entities.States.TournamentVisibility;
+import ingsw2.codekatabattle.Entities.States.UserRole;
 import ingsw2.codekatabattle.Entities.Tournament;
+import ingsw2.codekatabattle.Entities.User;
 import ingsw2.codekatabattle.Model.KeywordResponse;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Utils.KeywordGenerator;
@@ -18,6 +21,7 @@ import java.util.Date;
 public class TournamentService {
 
     private final TournamentDAO tournamentDAO;
+    private final UserDAO userDAO;
 
     public KeywordResponse createTournament(String name, String admin, Date registrationDeadline, boolean isPublic) {
 
@@ -73,6 +77,22 @@ public class TournamentService {
         } else
             log.error(ServerResponse.toString(result));
 
+        return result;
+    }
+
+    public ServerResponse promoteToModerator(String admin, String name, String moderator){
+        User user = userDAO.getUserByUsername(moderator);
+        if(user == null || !user.getRole().equals(UserRole.EDUCATOR)){
+            return ServerResponse.USER_IS_NOT_REGISTERED;
+        }
+
+        ServerResponse result = tournamentDAO.promoteToModerator(admin, name, moderator);
+
+        if(result == ServerResponse.USER_SUCCESSFULLY_PROMOTED_TO_MODERATOR){
+            log.info("User " + moderator + " has been promoted to moderator of tournament " + name + " by " + admin);
+            //notificationService.notifyNewModerator(); //TODO:
+        }else
+            log.error(ServerResponse.toString(result));
         return result;
     }
 

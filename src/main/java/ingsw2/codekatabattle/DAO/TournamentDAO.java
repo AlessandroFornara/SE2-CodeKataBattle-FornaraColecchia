@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -69,6 +70,38 @@ public class TournamentDAO {
             return ServerResponse.UNSUCCESSFUL_UPDATE;
         }else {
             return ServerResponse.USER_ALREADY_SUBSCRIBED_OR_REG_DEADLINE_EXPIRED;
+        }
+    }
+
+    public ServerResponse promoteToModerator(String admin, String name, String moderator) {
+
+        Query q = new Query();
+        q.addCriteria(Criteria.where("_id").is(name));
+        List<Tournament> result = mongoOperations.find(q, Tournament.class, collectionName);
+        if (result.isEmpty()) {
+            return ServerResponse.TOURNAMENT_DOESNT_EXIST;
+        } else {
+            Tournament t = result.get(0);
+
+            if (!t.getAdmin().equals(admin)) {
+                return ServerResponse.USER_IS_NOT_ADMIN;
+            } else if (t.getAdmin().equals(moderator)) {
+                return ServerResponse.USER_IS_ALREADY_ADMIN;
+            } else if (t.getModerators().contains(moderator)) {
+                return ServerResponse.USER_IS_ALREADY_MODERATOR;
+            } else if (t.getEndDate() != null) {
+                return ServerResponse.TOURNAMENT_ALREADY_CLOSED;
+            }
+
+            Update u = new Update();
+            u.push("moderators", moderator);
+            UpdateResult updateResult = mongoOperations.updateFirst(q, u, collectionName);
+
+            if (updateResult.getModifiedCount() == 1) {
+                return ServerResponse.USER_SUCCESSFULLY_PROMOTED_TO_MODERATOR;
+            } else {
+                return ServerResponse.UNSUCCESSFUL_UPDATE;
+            }
         }
     }
 
