@@ -105,6 +105,23 @@ public class TournamentDAO {
         }
     }
 
+    public boolean checkIfBattleCanBeCreated(String username, String name, Date battleRegistrationDeadline){
+        Query q = new Query();
+        Criteria tournamentName = Criteria.where("_id").is(name);
+
+        Criteria isAdmin = Criteria.where("admin").is(username);
+        Criteria isModerator = Criteria.where("moderators").is(username);
+        Criteria isAdminOrModerator = new Criteria().orOperator(isAdmin, isModerator);
+
+        Criteria notClosed = Criteria.where("endDate").isNull();
+        Criteria regDeadlineValid = Criteria.where("registrationDeadline").lt(battleRegistrationDeadline);
+
+        q.addCriteria(new Criteria().andOperator(tournamentName, isAdminOrModerator, notClosed, regDeadlineValid));
+
+        return mongoOperations.exists(q, collectionName);
+
+    }
+
     @Transactional(transactionManager = "primaryTransactionManager", rollbackFor = {Exception.class})
     public boolean addEndDate(String tntName, Date end){
 
