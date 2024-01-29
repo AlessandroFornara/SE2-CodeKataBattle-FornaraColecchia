@@ -4,7 +4,6 @@ public enum ServerResponse {
 
     BATTLE_CREATION_ERROR,
     BATTLE_ALREADY_EXISTS,
-    BATTLE_DOESNT_EXIST,
     BATTLE_SUCCESSFULLY_CREATED,
     EMAIL_OR_USERNAME_NOT_AVAILABLE,
     INVALID_CREDENTIALS,
@@ -12,6 +11,8 @@ public enum ServerResponse {
     PUBLIC_TOURNAMENT_CREATED,
     REGISTRATION_DEADLINE_NOT_VALID,
     SUBMISSION_DEADLINE_NOT_VALID,
+    TEAM_NAME_NOT_AVAILABLE,
+    TEAM_SUCCESSFULLY_CREATED,
     TOURNAMENT_ALREADY_CLOSED,
     TOURNAMENT_ALREADY_EXISTS,
     TOURNAMENT_DOESNT_EXIST,
@@ -24,8 +25,10 @@ public enum ServerResponse {
     USER_IS_ALREADY_MODERATOR,
     USER_IS_ALREADY_ADMIN,
     USER_SUCCESSFULLY_PROMOTED_TO_MODERATOR,
-    USER_ALREADY_SUBSCRIBED_OR_REG_DEADLINE_EXPIRED;
-
+    USER_ALREADY_SUBSCRIBED_OR_REG_DEADLINE_EXPIRED,
+    USER_IS_NOT_SUBSCRIBED_TO_TOURNAMENT,
+    JOIN_TEAM_SUCCESS,
+    JOIN_TEAM_FAILED;
 
     public static String toString(ServerResponse response){
         switch(response){
@@ -36,8 +39,6 @@ public enum ServerResponse {
                     "\t-All battles must be sequential, so check that the registration deadline isn't before " +
                     "the submission deadline of another battle";}
             case BATTLE_ALREADY_EXISTS -> {return "A battle with that name already exists in this tournament";}
-            case BATTLE_DOESNT_EXIST -> {return "The battle doesn't exist or you don't have access to it. \n" +
-                    "Make sure that you're subscribed to the battle and the tournament it belongs to";}
             case BATTLE_SUCCESSFULLY_CREATED -> {return "The battle has been created";}
             case EMAIL_OR_USERNAME_NOT_AVAILABLE -> {return "The provided email or username is already registered in our system";}
             case INVALID_CREDENTIALS -> {return "Invalid username or password";}
@@ -45,6 +46,8 @@ public enum ServerResponse {
             case PUBLIC_TOURNAMENT_CREATED -> {return "The PUBLIC tournament has been created";}
             case REGISTRATION_DEADLINE_NOT_VALID -> {return "Registration deadline not valid";}
             case SUBMISSION_DEADLINE_NOT_VALID -> {return "Submission deadline not valid";}
+            case TEAM_NAME_NOT_AVAILABLE -> {return "Team name is not available or user is already in another team or the registration deadline of the battle has expired";}
+            case TEAM_SUCCESSFULLY_CREATED -> {return "Team has been successfully created";}
             case TOURNAMENT_ALREADY_CLOSED -> {return "The tournament has already been closed";}
             case TOURNAMENT_ALREADY_EXISTS -> {return "A tournament with that name already exists";}
             case TOURNAMENT_DOESNT_EXIST -> {return "The tournament doesn't exist";}
@@ -58,6 +61,9 @@ public enum ServerResponse {
             case USER_IS_ALREADY_ADMIN -> {return "User is already Admin of the tournament";}
             case USER_SUCCESSFULLY_PROMOTED_TO_MODERATOR -> {return "User was successfully promoted to Moderator of the tournament";}
             case USER_ALREADY_SUBSCRIBED_OR_REG_DEADLINE_EXPIRED -> {return "User is already subscribed to the tournament or the registration deadline has expired";}
+            case USER_IS_NOT_SUBSCRIBED_TO_TOURNAMENT -> {return "User is not subscribed to the tournament";}
+            case JOIN_TEAM_FAILED -> {return "User is already part of another team or the team is full or the registration deadline of the battle has expired";}
+            case JOIN_TEAM_SUCCESS -> {return "User successfully joined the team";}
 
             default -> {return "An unexpected error has occurred";}
         }

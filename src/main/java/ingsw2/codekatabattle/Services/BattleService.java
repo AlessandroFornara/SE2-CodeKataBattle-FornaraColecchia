@@ -4,7 +4,10 @@ import ingsw2.codekatabattle.DAO.BattleDAO;
 import ingsw2.codekatabattle.DAO.TournamentDAO;
 import ingsw2.codekatabattle.Entities.Battle;
 import ingsw2.codekatabattle.Entities.CodeKata;
+import ingsw2.codekatabattle.Entities.Team;
+import ingsw2.codekatabattle.Model.KeywordResponse;
 import ingsw2.codekatabattle.Model.ServerResponse;
+import ingsw2.codekatabattle.Utils.KeywordGenerator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
@@ -54,5 +57,39 @@ public class BattleService {
             //notificationService.notifyNewBattle();
         }
         return result;
+    }
+
+    public KeywordResponse createTeam(String teamName, String battleName, String creator){
+
+        String keyword;
+        int index = battleName.indexOf("-");
+        if(!tournamentDAO.checkIfSubscribed(creator, battleName.substring(0, index))){
+            System.out.println(battleName.substring(0, index));
+            return new KeywordResponse(ServerResponse.USER_IS_NOT_SUBSCRIBED_TO_TOURNAMENT);
+        }
+        ArrayList<String> members = new ArrayList<>();
+        ArrayList<Integer> scores = new ArrayList<>();
+
+        members.add(creator);
+        scores.add(0);
+
+        do {
+            keyword = KeywordGenerator.generateKeyword();
+        }while (battleDAO.checkIfKeywordAlreadyExists(keyword));
+
+        Team team = new Team(teamName, members, scores, keyword);
+
+        return battleDAO.createTeam(team, battleName, creator);
+    }
+
+    public ServerResponse joinTeam(String keyword, String battleName, String username){
+
+        int index = battleName.indexOf("-");
+        if(!tournamentDAO.checkIfSubscribed(username, battleName.substring(0, index))){
+            System.out.println(battleName.substring(0, index));
+            return ServerResponse.USER_IS_NOT_SUBSCRIBED_TO_TOURNAMENT;
+        }
+
+        return battleDAO.joinTeam(keyword, battleName, username);
     }
 }

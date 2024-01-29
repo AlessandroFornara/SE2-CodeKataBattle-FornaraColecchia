@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -23,17 +22,18 @@ public class TournamentDAO {
     private final MongoOperations mongoOperations;
     private final String collectionName = "Tournament";
 
-    public ServerResponse saveTournament(Tournament tnt){
+    public ServerResponse saveTournament(Tournament tnt) {
 
         try {
             mongoOperations.insert(tnt, collectionName);
             return ServerResponse.TOURNAMENT_SUCCESSFULLY_SAVED;
-        }catch (Exception e){
+        } catch (Exception e) {
             return ServerResponse.TOURNAMENT_ALREADY_EXISTS;
         }
     }
 
-    public boolean checkIfKeywordAlreadyExists(String kw){
+
+    public boolean checkIfKeywordAlreadyExists(String kw) {
 
         Query q = new Query();
         q.addCriteria(Criteria.where("keyword").is(kw));
@@ -41,7 +41,7 @@ public class TournamentDAO {
         return mongoOperations.exists(q, collectionName);
     }
 
-    public ServerResponse subscribeToTournament(String tntNameOrKeyword, String username, TournamentVisibility tournamentVisibility){
+    public ServerResponse subscribeToTournament(String tntNameOrKeyword, String username, TournamentVisibility tournamentVisibility) {
 
         Query q = new Query();
         Criteria name = Criteria.where("_id").is(tntNameOrKeyword);
@@ -53,10 +53,9 @@ public class TournamentDAO {
         Criteria isPrivate = Criteria.where("visibility").is("PRIVATE");
 
         Criteria finalCriteria = new Criteria().andOperator(regDeadlineNotExpired, notClosed, notAlreadySubscribed);
-        if(tournamentVisibility.equals(TournamentVisibility.PUBLIC)){
+        if (tournamentVisibility.equals(TournamentVisibility.PUBLIC)) {
             q.addCriteria(new Criteria().andOperator(finalCriteria, name, isPublic));
-        }
-        else
+        } else
             q.addCriteria(new Criteria().andOperator(finalCriteria, keyword, isPrivate));
 
         Update u = new Update();
@@ -66,9 +65,9 @@ public class TournamentDAO {
 
         if (updateResult.getModifiedCount() == 1) {
             return ServerResponse.USER_SUCCESSFULLY_SUBSCRIBED_TO_TOURNAMENT;
-        } else if(updateResult.getMatchedCount() == 1) {
+        } else if (updateResult.getMatchedCount() == 1) {
             return ServerResponse.UNSUCCESSFUL_UPDATE;
-        }else {
+        } else {
             return ServerResponse.USER_ALREADY_SUBSCRIBED_OR_REG_DEADLINE_EXPIRED;
         }
     }
@@ -105,7 +104,7 @@ public class TournamentDAO {
         }
     }
 
-    public boolean checkIfBattleCanBeCreated(String username, String name, Date battleRegistrationDeadline){
+    public boolean checkIfBattleCanBeCreated(String username, String name, Date battleRegistrationDeadline) {
         Query q = new Query();
         Criteria tournamentName = Criteria.where("_id").is(name);
 
@@ -122,23 +121,15 @@ public class TournamentDAO {
 
     }
 
-    @Transactional(transactionManager = "primaryTransactionManager", rollbackFor = {Exception.class})
-    public boolean addEndDate(String tntName, Date end){
 
+    public boolean checkIfSubscribed(String username, String name) {
         Query q = new Query();
-        q.addCriteria(Criteria.where("name").is(tntName));
+        Criteria tournamentName = Criteria.where("_id").is(name);
+        Criteria isSubscribed = Criteria.where("rank." + username).exists(true);
 
-        Update u = new Update();
-        u.set("endDate", end);
+        q.addCriteria(new Criteria().andOperator(tournamentName, isSubscribed));
 
-        UpdateResult result = mongoOperations.updateFirst(q, u, "Tournament");
-
-        if(result.getModifiedCount()==1){
-            return true;
-        } else {
-            return false;
-        }
+        return mongoOperations.exists(q, collectionName);
     }
 
 }
-
