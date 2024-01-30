@@ -3,6 +3,7 @@ package ingsw2.codekatabattle.DAO;
 
 import com.mongodb.client.result.UpdateResult;
 import ingsw2.codekatabattle.Entities.States.TournamentVisibility;
+import ingsw2.codekatabattle.Entities.Team;
 import ingsw2.codekatabattle.Entities.Tournament;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import lombok.AllArgsConstructor;
@@ -130,6 +131,26 @@ public class TournamentDAO {
         q.addCriteria(new Criteria().andOperator(tournamentName, isSubscribed));
 
         return mongoOperations.exists(q, collectionName);
+    }
+
+    public boolean updateRank(String tntName, List<Team> teams){
+
+        Query q = new Query().addCriteria(Criteria.where("_id").is(tntName));
+        Update u = new Update();
+
+        for (Team t : teams) {
+            for (String student : t.getMembers()){
+                u.inc("rank."+student, t.getScores().get(t.getMembers().indexOf(student)));
+            }
+        }
+
+        UpdateResult result = mongoOperations.updateMulti(q,u,collectionName);
+
+        if (result.getModifiedCount() == 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

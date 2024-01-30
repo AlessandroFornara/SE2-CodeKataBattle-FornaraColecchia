@@ -102,4 +102,28 @@ public class BattleDAO {
         }
     }
 
+    public boolean updateScore(String keyword, String battle, int points){
+        Date date = new Date();
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(battle));
+        query.addCriteria(Criteria.where("submitDate").gt(date));
+        query.addCriteria(Criteria.where("registrationDeadline").lt(date));
+        //si può volendo aggiungere l'errore che non c'è il team con il MatchedCount o va tolta
+        query.addCriteria(Criteria.where("teams.keyword").is(keyword));
+
+        Update u = new Update();
+        u.filterArray(Criteria.where("t.keyword").is(keyword));
+        u.set("teams.$[t].scores.$[]", points);
+        u.set("teams.$[t].points", points);
+
+        UpdateResult updateResult = mongoOperations.updateFirst(query, u, Battle.class);
+
+        if (updateResult.getModifiedCount() == 1) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
 }

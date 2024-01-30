@@ -2,6 +2,7 @@ package ingsw2.codekatabattle.Entities;
 
 import ingsw2.codekatabattle.Entities.States.TournamentVisibility;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -17,6 +18,7 @@ public class Tournament {
     private String name;
     private String admin;
     private ArrayList<String> moderators;
+    @Setter
     private HashMap<String, Integer> rank;
     private TournamentVisibility visibility;
     private Date registrationDeadline;

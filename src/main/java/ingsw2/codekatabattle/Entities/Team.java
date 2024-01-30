@@ -14,5 +14,5 @@ public class Team {
     private ArrayList<Integer> scores;
     //private HashMap<String, Integer> members;
     private String keyword;
-
+    private int points;
 }

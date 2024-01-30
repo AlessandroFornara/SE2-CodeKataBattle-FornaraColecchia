@@ -21,5 +21,8 @@ public class CodeKata {
     @NotNull(message = "description must not be null")
     @NotBlank(message = "description must not be blank")
     private String description;
+    @NotNull(message = "configurationFile must not be null")
+    @NotBlank(message = "configurationFile must not be blank")
+    private String configurationFile;
 
 }
