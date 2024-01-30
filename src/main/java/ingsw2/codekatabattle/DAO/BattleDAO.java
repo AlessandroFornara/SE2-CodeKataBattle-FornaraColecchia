@@ -42,6 +42,16 @@ public class BattleDAO {
         }
     }
 
+    public Battle getBattleInfo(String name){
+        Query q = new Query();
+
+        Criteria battleName = Criteria.where("_id").is(name);
+        q.addCriteria(battleName);
+        q.fields().exclude("teams.keyword");
+
+        return mongoOperations.findOne(q, Battle.class, collectionName);
+    }
+
     public boolean checkIfKeywordAlreadyExists(String kw){
 
         Query q = new Query();
@@ -56,7 +66,7 @@ public class BattleDAO {
         Criteria battleName = Criteria.where("_id").is(battle);
         Criteria teamNameCriteria = Criteria.where("teams.name").nin(team.getName());
         Criteria regDeadlineNotExpired = Criteria.where("registrationDeadline").gt(new Date());
-        Criteria creatorNotInAnyTeam = Criteria.where("teams.members." + creator).not().exists(true);
+        Criteria creatorNotInAnyTeam = Criteria.where("teams.members").nin(creator);
         q.addCriteria(new Criteria().andOperator(battleName, teamNameCriteria, regDeadlineNotExpired, creatorNotInAnyTeam));
 
         Update u = new Update();
@@ -102,6 +112,27 @@ public class BattleDAO {
         }
     }
 
+    public boolean checkIfSubscribed(String username, String battle) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(battle));
+        query.addCriteria(Criteria.where("teams.members." + username).exists(true));
+
+        long count = mongoOperations.count(query, collectionName);
+
+        return count > 0;
+    }
+
+    public Battle checkIfCanBeClosed(String battle){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(battle));
+        query.addCriteria(Criteria.where("endDate").isNull());
+        query.addCriteria(Criteria.where("submitDate").lt(new Date()));
+
+        Update u = new Update().set("endDate", new Date());
+
+        return mongoOperations.findAndModify(query, u, Battle.class, collectionName);
+    }
+
     public boolean updateScore(String keyword, String battle, int points){
         Date date = new Date();
         Query query = new Query();
@@ -124,6 +155,54 @@ public class BattleDAO {
             return false;
         }
 
+    }
+
+    public boolean evaluate(String battle, String[] usernames, int[] points){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(battle));
+        query.addCriteria(Criteria.where("submitDate").lt(new Date()));
+        query.addCriteria(Criteria.where("endDate").isNull());
+        query.addCriteria(Criteria.where("teams.members").is(usernames));
+
+        Update update = new Update();
+        update.filterArray(Criteria.where("t.members").in(usernames));
+        update.set("teams.$[t].scores", points);
+
+        UpdateResult updateResult = mongoOperations.updateFirst(query, update, Battle.class);
+
+        if (updateResult.getModifiedCount() == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void saveRepoLink(String link, String battleName){
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(battleName));
+
+        Update update = new Update();
+        update.set("repositoryLink", link);
+
+        mongoOperations.updateFirst(query, update, Battle.class);
+    }
+
+    public void deleteInvalidTeams(String battleName){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(battleName));
+        Battle battle = mongoOperations.findOne(query, Battle.class, collectionName);
+
+        for(int i = 0; i<battle.getTeams().size(); i++){
+            if(battle.getTeams().get(i).getMembers().size() < battle.getMinPlayers()){
+                battle.getTeams().remove(i);
+            }
+        }
+
+        Update update = new Update();
+        update.set("teams", battle.getTeams());
+
+        mongoOperations.updateFirst(query, update, Battle.class, collectionName);
     }
 
 }

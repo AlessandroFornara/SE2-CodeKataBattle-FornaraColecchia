@@ -1,6 +1,8 @@
 package ingsw2.codekatabattle.Controllers.EducatorController;
 
 import ingsw2.codekatabattle.Model.BattleDTOS.BattleCreationDTO;
+import ingsw2.codekatabattle.Model.BattleDTOS.CloseConsolidationStageDTO;
+import ingsw2.codekatabattle.Model.BattleDTOS.EvaluateDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Services.BattleService;
 import jakarta.validation.Valid;
@@ -42,15 +44,32 @@ public class BattleManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+
+    @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/close")
-    public ResponseEntity<?> closeConsolidationStage(){
-        return null;
+    public ResponseEntity<?> closeConsolidationStage(@Valid @RequestBody CloseConsolidationStageDTO closeConsolidationStageDTO){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ServerResponse result = battleService.closeConsolidationStage((String) authentication.getPrincipal(),
+                closeConsolidationStageDTO.getBattleName());
+        if(result == ServerResponse.CONS_STAGE_CLOSED_SUCCESSFULLY)
+            return ResponseEntity.ok(ServerResponse.toString(result));
+        else
+            return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
-
+    @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/evaluate")
-    public String evaluate(){
-        return "";
+    public ResponseEntity<?> evaluate(@Valid @RequestBody EvaluateDTO evaluateDTO){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        ServerResponse result = battleService.evaluate((String) authentication.getPrincipal(),
+                evaluateDTO.getBattleName(),
+                evaluateDTO.getUsernames(),
+                evaluateDTO.getPoints());
+
+        if(result.equals(ServerResponse.EVALUATION_SUCCESSFUL)){
+            return ResponseEntity.ok(ServerResponse.toString(result));
+        }else
+            return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
 }

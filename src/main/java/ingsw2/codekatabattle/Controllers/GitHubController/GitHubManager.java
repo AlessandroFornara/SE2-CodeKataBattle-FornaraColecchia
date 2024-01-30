@@ -1,12 +1,16 @@
 package ingsw2.codekatabattle.Controllers.GitHubController;
 
+import ingsw2.codekatabattle.Model.AutomatedEvaluationDTO;
+import ingsw2.codekatabattle.Model.ServerResponse;
+import ingsw2.codekatabattle.Services.BattleService;
 import ingsw2.codekatabattle.Services.GitHubService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/GitHub")
@@ -14,19 +18,19 @@ import java.util.HashMap;
 public class GitHubManager {
 
     private final GitHubService gitHubService;
-
-    //TODO: Just for testing
-    @PostMapping("/createRepo")
-    public void createRepositoryAndUploadFiles(String newRepoName) {
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("test.txt", "CIAO");
-        hashMap.put("test2.txt", "CIAOOO");
-        gitHubService.createRepositoryAndUploadFiles(newRepoName, hashMap);
-    }
+    private final BattleService battleService;
 
     @PostMapping("/automatedEvaluation")
-    public void updateScore(){
+    public ResponseEntity<?> updateScore(@Valid @RequestBody AutomatedEvaluationDTO automatedEvaluationDTO){
 
+        ServerResponse response = battleService.updateScore(automatedEvaluationDTO.getKeyword(),
+                automatedEvaluationDTO.getBattle(),
+                automatedEvaluationDTO.getOutputs());
+
+        if (response != ServerResponse.AUTOMATED_EVALUATION_OK){
+            return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(response));
+        }
+        return ResponseEntity.ok(ServerResponse.toString(response));
     }
 
 }

@@ -23,18 +23,18 @@ public class TournamentDAO {
     private final MongoOperations mongoOperations;
     private final String collectionName = "Tournament";
 
-    public ServerResponse saveTournament(Tournament tnt) {
+    public ServerResponse saveTournament(Tournament tnt){
 
         try {
             mongoOperations.insert(tnt, collectionName);
             return ServerResponse.TOURNAMENT_SUCCESSFULLY_SAVED;
-        } catch (Exception e) {
+        }catch (Exception e){
             return ServerResponse.TOURNAMENT_ALREADY_EXISTS;
         }
     }
 
 
-    public boolean checkIfKeywordAlreadyExists(String kw) {
+    public boolean checkIfKeywordAlreadyExists(String kw){
 
         Query q = new Query();
         q.addCriteria(Criteria.where("keyword").is(kw));
@@ -42,7 +42,28 @@ public class TournamentDAO {
         return mongoOperations.exists(q, collectionName);
     }
 
-    public ServerResponse subscribeToTournament(String tntNameOrKeyword, String username, TournamentVisibility tournamentVisibility) {
+    public ServerResponse addEndDate(String username, String tntName, Date end){
+
+        Query q = new Query();
+        Criteria name = Criteria.where("_id").is(tntName);
+        Criteria notClosed = Criteria.where("endDate").isNull();
+        Criteria isAdmin = Criteria.where("admin").is(username);
+
+        q.addCriteria(new Criteria().andOperator(name, notClosed, isAdmin));
+
+        Update u = new Update();
+        u.set("endDate", end);
+        UpdateResult updateResult = mongoOperations.updateFirst(q, u, collectionName);
+
+        if(updateResult.getModifiedCount()==1)
+            return ServerResponse.TOURNAMENT_CLOSED_OK;
+        else if(updateResult.getMatchedCount() == 1)
+            return ServerResponse.UNSUCCESSFUL_UPDATE;
+        else
+            return ServerResponse.TOURNAMENT_IS_ALREADY_CLOSED_OR_USER_NOT_ADMIN;
+    }
+
+    public ServerResponse subscribeToTournament(String tntNameOrKeyword, String username, TournamentVisibility tournamentVisibility){
 
         Query q = new Query();
         Criteria name = Criteria.where("_id").is(tntNameOrKeyword);
@@ -54,9 +75,10 @@ public class TournamentDAO {
         Criteria isPrivate = Criteria.where("visibility").is("PRIVATE");
 
         Criteria finalCriteria = new Criteria().andOperator(regDeadlineNotExpired, notClosed, notAlreadySubscribed);
-        if (tournamentVisibility.equals(TournamentVisibility.PUBLIC)) {
+        if(tournamentVisibility.equals(TournamentVisibility.PUBLIC)){
             q.addCriteria(new Criteria().andOperator(finalCriteria, name, isPublic));
-        } else
+        }
+        else
             q.addCriteria(new Criteria().andOperator(finalCriteria, keyword, isPrivate));
 
         Update u = new Update();
@@ -66,30 +88,33 @@ public class TournamentDAO {
 
         if (updateResult.getModifiedCount() == 1) {
             return ServerResponse.USER_SUCCESSFULLY_SUBSCRIBED_TO_TOURNAMENT;
-        } else if (updateResult.getMatchedCount() == 1) {
+        } else if(updateResult.getMatchedCount() == 1) {
             return ServerResponse.UNSUCCESSFUL_UPDATE;
-        } else {
+        }else {
             return ServerResponse.USER_ALREADY_SUBSCRIBED_OR_REG_DEADLINE_EXPIRED;
         }
     }
 
-    public ServerResponse promoteToModerator(String admin, String name, String moderator) {
+    public ServerResponse promoteToModerator(String admin, String name, String moderator){
 
-        Query q = new Query();
+        Query q =new Query();
         q.addCriteria(Criteria.where("_id").is(name));
         List<Tournament> result = mongoOperations.find(q, Tournament.class, collectionName);
-        if (result.isEmpty()) {
+        if(result.isEmpty()) {
             return ServerResponse.TOURNAMENT_DOESNT_EXIST;
         } else {
             Tournament t = result.get(0);
 
-            if (!t.getAdmin().equals(admin)) {
+            if(!t.getAdmin().equals(admin)){
                 return ServerResponse.USER_IS_NOT_ADMIN;
-            } else if (t.getAdmin().equals(moderator)) {
+            }
+            else if(t.getAdmin().equals(moderator)){
                 return ServerResponse.USER_IS_ALREADY_ADMIN;
-            } else if (t.getModerators().contains(moderator)) {
+            }
+            else if(t.getModerators().contains(moderator)){
                 return ServerResponse.USER_IS_ALREADY_MODERATOR;
-            } else if (t.getEndDate() != null) {
+            }
+            else if(t.getEndDate() != null){
                 return ServerResponse.TOURNAMENT_ALREADY_CLOSED;
             }
 
@@ -105,7 +130,7 @@ public class TournamentDAO {
         }
     }
 
-    public boolean checkIfBattleCanBeCreated(String username, String name, Date battleRegistrationDeadline) {
+    public boolean checkIfBattleCanBeCreated(String username, String name, Date battleRegistrationDeadline){
         Query q = new Query();
         Criteria tournamentName = Criteria.where("_id").is(name);
 
@@ -123,12 +148,37 @@ public class TournamentDAO {
     }
 
 
-    public boolean checkIfSubscribed(String username, String name) {
+
+    public boolean checkIfSubscribed(String username, String name){
         Query q = new Query();
         Criteria tournamentName = Criteria.where("_id").is(name);
         Criteria isSubscribed = Criteria.where("rank." + username).exists(true);
 
         q.addCriteria(new Criteria().andOperator(tournamentName, isSubscribed));
+
+        return mongoOperations.exists(q, collectionName);
+    }
+
+    public boolean checkIfAdminOrModerator(String username, String name){
+        Query q = new Query();
+        Criteria tournamentName = Criteria.where("_id").is(name);
+
+        Criteria isAdmin = Criteria.where("admin").is(username);
+        Criteria isModerator = Criteria.where("moderators").is(username);
+        Criteria isAdminOrModerator = new Criteria().orOperator(isAdmin, isModerator);
+
+        q.addCriteria(new Criteria().andOperator(tournamentName, isAdminOrModerator));
+
+        return mongoOperations.exists(q, collectionName);
+    }
+
+    public boolean checkIfAdmin(String username, String name){
+        Query q = new Query();
+
+        Criteria tournamentName = Criteria.where("_id").is(name);
+        Criteria isAdmin = Criteria.where("admin").is(username);
+
+        q.addCriteria(new Criteria().andOperator(tournamentName, isAdmin));
 
         return mongoOperations.exists(q, collectionName);
     }
