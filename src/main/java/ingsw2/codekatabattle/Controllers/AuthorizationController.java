@@ -6,22 +6,22 @@ import ingsw2.codekatabattle.Entities.User;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Model.UserDTOS.LoginDTO;
 import ingsw2.codekatabattle.Model.UserDTOS.RegisterDTO;
+import ingsw2.codekatabattle.Model.UserDTOS.UserDTO;
 import ingsw2.codekatabattle.Model.UserDTOS.UserTokenDTO;
 import ingsw2.codekatabattle.Security.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
@@ -83,4 +83,22 @@ public class AuthorizationController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('EDUCATOR', 'STUDENT')")
+    @GetMapping("/userInformation")
+    public ResponseEntity<?> getUserInformation(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) authentication.getPrincipal();
+        User user = userDAO.getUserByUsername(username);
+
+        if(user == null){
+            return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(ServerResponse.USER_IS_NOT_REGISTERED));
+        }else {
+            UserDTO userDTO = new UserDTO(user.getEmail(),
+                    user.getName(),
+                    user.getSurname(),
+                    user.getUsername(),
+                    user.getRole());
+            return ResponseEntity.ok().body(userDTO);
+        }
+    }
 }

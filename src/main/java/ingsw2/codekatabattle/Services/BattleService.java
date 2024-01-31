@@ -4,8 +4,10 @@ import ingsw2.codekatabattle.DAO.BattleDAO;
 import ingsw2.codekatabattle.DAO.TournamentDAO;
 import ingsw2.codekatabattle.Entities.Battle;
 import ingsw2.codekatabattle.Entities.CodeKata;
+import ingsw2.codekatabattle.Entities.States.UserRole;
 import ingsw2.codekatabattle.Entities.Team;
 import ingsw2.codekatabattle.Model.KeywordResponse;
+import ingsw2.codekatabattle.Model.SeeInfoDTOS.MyBattlesDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Utils.KeywordGenerator;
 import lombok.AllArgsConstructor;
@@ -14,10 +16,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @Service
@@ -47,18 +46,36 @@ public class BattleService {
 
         HashMap<String, String> files = new HashMap<>();
         IntStream.range(0, codeKata.getInput().size())
-                .forEach(i -> files.put("input" + (i + 1), codeKata.getInput().get(i)));
+                .forEach(i -> files.put("input" + (i + 1) + ".txt", codeKata.getInput().get(i)));
 
         IntStream.range(0, codeKata.getOutput().size())
-                .forEach(i -> files.put("output" + (i + 1), codeKata.getOutput().get(i)));
+                .forEach(i -> files.put("output" + (i + 1) + ".txt", codeKata.getOutput().get(i)));
 
-        files.put("description", codeKata.getDescription());
+        files.put("description.txt", codeKata.getDescription());
+        files.put("configuration.yaml", codeKata.getConfigurationFile());
 
         if(result.equals(ServerResponse.BATTLE_SUCCESSFULLY_CREATED)) {
             taskScheduler.schedule(() -> gitHubService.createRepositoryAndUploadFiles(tournamentName + "-" + name, files), registrationDeadline);
             //notificationService.notifyNewBattle();
         }
         return result;
+    }
+
+    public Battle getBattleInfo(String name, String username, UserRole role) {
+
+        int index = name.indexOf("-");
+        if (role.equals(UserRole.STUDENT)) {
+            if (!tournamentDAO.checkIfSubscribed(username, name.substring(0, index)))
+                return null;
+            if(!battleDAO.checkIfSubscribed(username, name))
+                return null;
+        } else {
+            if (!tournamentDAO.checkIfAdminOrModerator(username, name.substring(0, index)))
+                return null;
+        }
+        Battle battle = battleDAO.getBattleInfo(name);
+        battle.getTeams().sort(Comparator.comparing(Team::getPoints).reversed());
+        return battle;
     }
 
     public KeywordResponse createTeam(String teamName, String battleName, String creator){
@@ -171,4 +188,15 @@ public class BattleService {
         return ServerResponse.CONS_STAGE_CLOSED_SUCCESSFULLY;
     }
 
+    public List<MyBattlesDTO> getBattlesByEducator(String username){
+        return battleDAO.getBattlesByEducator(username);
+    }
+
+    public List<MyBattlesDTO> getBattlesByStudent(String username){
+        return battleDAO.getBattlesByStudent(username);
+    }
+
+    public List<Battle> getTntBattles(String tournamentName){
+        return battleDAO.getTntBattles(tournamentName);
+    }
 }

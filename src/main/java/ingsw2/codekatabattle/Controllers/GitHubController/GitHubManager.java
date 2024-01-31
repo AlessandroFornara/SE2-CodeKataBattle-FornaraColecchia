@@ -3,7 +3,6 @@ package ingsw2.codekatabattle.Controllers.GitHubController;
 import ingsw2.codekatabattle.Model.AutomatedEvaluationDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Services.BattleService;
-import ingsw2.codekatabattle.Services.GitHubService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class GitHubManager {
 
-    private final GitHubService gitHubService;
     private final BattleService battleService;
 
     @PostMapping("/automatedEvaluation")

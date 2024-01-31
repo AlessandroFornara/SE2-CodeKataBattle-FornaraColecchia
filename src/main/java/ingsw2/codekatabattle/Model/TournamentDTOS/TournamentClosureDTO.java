@@ -7,11 +7,11 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class SubscribeTntDTO {
+public class TournamentClosureDTO {
 
-    @NotNull(message = "nameOrKeyword must not be null")
-    @NotBlank(message = "nameOrKeyword must not be blank")
-    private String nameOrKeyword;
+    @NotNull(message = "Name must not be null")
+    @NotBlank(message = "Name must not be blank")
+    private String name;
 
-    private boolean tournamentPublic;
+    private boolean t;
 }

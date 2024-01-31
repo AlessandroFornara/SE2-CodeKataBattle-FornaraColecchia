@@ -3,10 +3,14 @@ package ingsw2.codekatabattle.DAO;
 
 import com.mongodb.client.result.UpdateResult;
 import ingsw2.codekatabattle.Entities.States.TournamentVisibility;
+import ingsw2.codekatabattle.Entities.States.UserRole;
 import ingsw2.codekatabattle.Entities.Team;
 import ingsw2.codekatabattle.Entities.Tournament;
+import ingsw2.codekatabattle.Model.SeeInfoDTOS.MyTournamentsDTO;
+import ingsw2.codekatabattle.Model.SeeInfoDTOS.UpcomingAndOngoingTntDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -95,6 +99,7 @@ public class TournamentDAO {
         }
     }
 
+
     public ServerResponse promoteToModerator(String admin, String name, String moderator){
 
         Query q =new Query();
@@ -128,6 +133,79 @@ public class TournamentDAO {
                 return ServerResponse.UNSUCCESSFUL_UPDATE;
             }
         }
+    }
+
+    public List<MyTournamentsDTO> getTournamentsByEducator(String username){
+
+        Query q =new Query();
+        Criteria isAdmin = Criteria.where("admin").is(username);
+        Criteria isModerator = Criteria.where("moderators").is(username);
+        Criteria notClosed = Criteria.where("endDate").isNull();
+
+        Criteria isAdminOrModerator = new Criteria().orOperator(isAdmin, isModerator);
+        q.addCriteria(new Criteria().andOperator(isAdminOrModerator, notClosed));
+        q.fields().include("_id");
+        q.fields().include("visibility");
+
+        q.with(Sort.by(Sort.Direction.ASC, "_id"));
+
+        return mongoOperations.find(q, MyTournamentsDTO.class, collectionName);
+    }
+
+    public List<MyTournamentsDTO> getTournamentsByStudent(String username){
+
+        Query q =new Query();
+        Criteria isSubscribed = Criteria.where("rank." + username).exists(true);
+        Criteria notClosed = Criteria.where("endDate").isNull();
+
+        q.addCriteria(new Criteria().andOperator(isSubscribed, notClosed));
+        q.fields().include("_id");
+        q.fields().include("visibility");
+
+        return mongoOperations.find(q, MyTournamentsDTO.class, collectionName);
+    }
+
+    public Tournament getTournamentInfo(String name, String username, UserRole role){
+        Query q = new Query();
+        Criteria tournamentName = Criteria.where("_id").is(name);
+
+        Criteria isAdmin = Criteria.where("admin").is(username);
+        Criteria isModerator = Criteria.where("moderators").is(username);
+        Criteria isAdminOrModerator = new Criteria().orOperator(isAdmin, isModerator);
+        Criteria notClosed = Criteria.where("endDate").isNull();
+
+        Criteria isSubscribed = Criteria.where("rank." + username).exists(true);
+        Criteria isPublic = Criteria.where("visibility").is("PUBLIC");
+        Criteria privateAndAdminOrModerator = new Criteria().orOperator(isPublic, isAdminOrModerator);
+        Criteria privateAndSubscribed = new Criteria().orOperator(isPublic, isSubscribed);
+
+        q.addCriteria(tournamentName);
+        q.addCriteria(notClosed);
+        q.fields().exclude("keyword");
+
+        if(role.equals(UserRole.EDUCATOR)){
+            q.addCriteria(privateAndAdminOrModerator.is(true));
+        }else{
+            q.addCriteria(privateAndSubscribed.is(true));
+        }
+
+        return mongoOperations.findOne(q, Tournament.class, collectionName);
+    }
+
+    public List<UpcomingAndOngoingTntDTO> getUpcomingAndOngoingTournaments(){
+        Query q = new Query();
+
+        Criteria notClosed = Criteria.where("endDate").isNull();
+        Criteria isPublic = Criteria.where("visibility").is("PUBLIC");
+        q.addCriteria(notClosed);
+        q.addCriteria(isPublic);
+        q.fields().include("_id");
+        q.fields().include("admin");
+        q.fields().include("registrationDeadline");
+
+        q.with(Sort.by(Sort.Direction.ASC, "registrationDeadline"));
+
+        return mongoOperations.find(q, UpcomingAndOngoingTntDTO.class, collectionName);
     }
 
     public boolean checkIfBattleCanBeCreated(String username, String name, Date battleRegistrationDeadline){
@@ -194,7 +272,7 @@ public class TournamentDAO {
             }
         }
 
-        UpdateResult result = mongoOperations.updateMulti(q,u,collectionName);
+        UpdateResult result = mongoOperations.updateFirst(q,u,collectionName);
 
         if (result.getModifiedCount() == 1) {
             return true;
@@ -203,4 +281,13 @@ public class TournamentDAO {
         }
     }
 
+    public List<Tournament> getTntByNameOrKeyword(String nameOrKeyword, TournamentVisibility visibility){
+
+        Query query = new Query();
+        if(visibility == TournamentVisibility.PUBLIC)
+            query.addCriteria(Criteria.where("_id").is(nameOrKeyword));
+        else query.addCriteria(Criteria.where("keyword").is(nameOrKeyword));
+
+        return mongoOperations.find(query, Tournament.class, collectionName);
+    }
 }

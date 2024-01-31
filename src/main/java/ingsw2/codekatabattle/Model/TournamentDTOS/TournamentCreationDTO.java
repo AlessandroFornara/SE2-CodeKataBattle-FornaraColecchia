@@ -22,7 +22,6 @@ public class TournamentCreationDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private Date registrationDeadline;
 
-    @NotNull(message = "isPublic must not be null")
-    private boolean isPublic;
+    private boolean publicTournament;
 
 }

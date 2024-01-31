@@ -4,8 +4,10 @@ import com.mongodb.client.result.UpdateResult;
 import ingsw2.codekatabattle.Entities.Battle;
 import ingsw2.codekatabattle.Entities.Team;
 import ingsw2.codekatabattle.Model.KeywordResponse;
+import ingsw2.codekatabattle.Model.SeeInfoDTOS.MyBattlesDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -42,6 +44,51 @@ public class BattleDAO {
         }
     }
 
+    public boolean checkIfAllBattlesClosed(String tntName){
+
+        Query q = new Query();
+
+        String regexPattern = "^" + Pattern.quote(tntName) + "-.*";
+        q.addCriteria(Criteria.where("_id").regex(regexPattern));
+        q.addCriteria(Criteria.where("endDate").isNull());
+
+        if (mongoOperations.exists(q, collectionName)){
+            return false;
+        }
+        return true;
+    }
+
+    public List<MyBattlesDTO> getBattlesByEducator(String username){
+
+        Query q = new Query();
+        Criteria notClosed = Criteria.where("submitDate").gt(new Date());
+        Criteria creator = Criteria.where("creator").is(username);
+
+        q.addCriteria(new Criteria().andOperator(notClosed, creator));
+        q.fields().include("_id");
+        q.fields().include("registrationDeadline");
+        q.fields().include("submitDate");
+
+        return mongoOperations.find(q, MyBattlesDTO.class, collectionName);
+
+    }
+
+    public List<MyBattlesDTO> getBattlesByStudent(String username){
+
+        Query q = new Query();
+        Criteria notClosed = Criteria.where("submitDate").gt(new Date());
+        Criteria team = Criteria.where("teams.members").in(username);
+
+        q.addCriteria(new Criteria().andOperator(notClosed, team));
+        q.fields().include("_id");
+        q.fields().include("registrationDeadline");
+        q.fields().include("submitDate");
+
+        return mongoOperations.find(q, MyBattlesDTO.class, collectionName);
+
+    }
+
+    //TODO: Da testare
     public Battle getBattleInfo(String name){
         Query q = new Query();
 
@@ -60,6 +107,7 @@ public class BattleDAO {
         return mongoOperations.exists(q, collectionName);
     }
 
+    //TODO: TESTARE
     public KeywordResponse createTeam(Team team, String battle, String creator){
 
         Query q = new Query();
@@ -186,6 +234,20 @@ public class BattleDAO {
         update.set("repositoryLink", link);
 
         mongoOperations.updateFirst(query, update, Battle.class);
+    }
+
+    public List<Battle> getTntBattles(String tournamentName){
+
+        Query query = new Query();
+        String regexPattern = "^" + Pattern.quote(tournamentName) + "-.*";
+        query.addCriteria(Criteria.where("_id").regex(regexPattern));
+
+        query.fields().exclude("codeKata");
+        query.fields().exclude("teams");
+        query.fields().exclude("repositoryLink");
+        query.with(Sort.by(Sort.Direction.ASC, "registrationDeadline"));
+
+        return mongoOperations.find(query, Battle.class, collectionName);
     }
 
     public void deleteInvalidTeams(String battleName){

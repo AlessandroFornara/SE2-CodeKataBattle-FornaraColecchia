@@ -1,8 +1,11 @@
 package ingsw2.codekatabattle.Controllers.EducatorController;
 
+import ingsw2.codekatabattle.Entities.Battle;
+import ingsw2.codekatabattle.Entities.States.UserRole;
 import ingsw2.codekatabattle.Model.BattleDTOS.BattleCreationDTO;
 import ingsw2.codekatabattle.Model.BattleDTOS.CloseConsolidationStageDTO;
 import ingsw2.codekatabattle.Model.BattleDTOS.EvaluateDTO;
+import ingsw2.codekatabattle.Model.SeeInfoDTOS.MyBattlesDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Services.BattleService;
 import jakarta.validation.Valid;
@@ -10,11 +13,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -72,4 +76,37 @@ public class BattleManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+    @PreAuthorize("hasRole('EDUCATOR')")
+    @GetMapping("/myBattles")
+    public ResponseEntity<?> getMyBattles(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<MyBattlesDTO> myBattles = battleService.getBattlesByEducator((String)authentication.getPrincipal());
+        return ResponseEntity.ok(myBattles);
+    }
+
+    @PreAuthorize("hasRole('EDUCATOR')")
+    @GetMapping("/battleInfo")
+    public ResponseEntity<?> getBattleInfo(@RequestParam String name){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String grantedAuthority = null;
+        for (GrantedAuthority authority : authorities) {
+            grantedAuthority = authority.getAuthority();
+        }
+
+        Battle battle = battleService.getBattleInfo(name,
+                (String) authentication.getPrincipal(),
+                grantedAuthority.equals("ROLE_EDUCATOR") ? UserRole.EDUCATOR : UserRole.STUDENT);
+
+        if (battle == null){
+            return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(ServerResponse.BATTLE_DOESNT_EXIST));
+        }
+        return ResponseEntity.ok(battle);
+    }
+
+    @PreAuthorize("hasRole('EDUCATOR')")
+    @GetMapping("/tntBattles")
+    public ResponseEntity<?> getTournamentBattles(@RequestParam String tournamentName){
+        return ResponseEntity.ok(battleService.getTntBattles(tournamentName));
+    }
 }
