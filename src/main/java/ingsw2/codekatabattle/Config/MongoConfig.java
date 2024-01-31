@@ -4,6 +4,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
@@ -13,7 +14,8 @@ import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
-    private final String localDatabase = "mongodb://localhost:27017/CKB";
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
 
     @Bean(name="primaryTransactionManager")
     MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
@@ -30,7 +32,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public MongoClient mongoClient() {
-        final ConnectionString connectionString = new ConnectionString(localDatabase);
+        final ConnectionString connectionString = new ConnectionString(mongoUri);
         final MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .build();
