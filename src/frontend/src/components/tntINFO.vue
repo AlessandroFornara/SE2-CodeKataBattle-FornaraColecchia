@@ -19,6 +19,7 @@
               class="btn btn-primary"
               v-if="closeButton.present"
               :disabled="closeButton.disabled"
+              @click="close"
           >Close</button>
         </div>
       </div>
@@ -45,6 +46,22 @@
               <p v-else>Register before: <strong>{{regDeadline}}</strong></p>
             </div>
           </div>
+
+          <div class="row m-3 d-flex justify-content-between align-items-center border rounded p-3"
+               v-if="this.username===this.admin"
+          >
+            <p style="max-width: fit-content; margin-bottom: 0; margin-left: 5%"><em>Promote to moderator: </em></p>
+            <div class="input-group" style="max-width: 50%; margin-right: 10%">
+              <input type="text" class="form-control" placeholder="Username" v-model="newModerator">
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      :disabled="!newModerator"
+                      @click.prevent="promote"
+              >Promote</button>
+            </div>
+            <p class="text-danger" v-if="errorPromote">{{errorPromote}}</p>
+          </div>
+
         </div>
 
         <div class="col" style="max-height: 40vh; max-width: 35%; border-left: 1px solid dimgray;">
@@ -70,7 +87,7 @@
     </div>
     <div class="container m-5" id="battles">
       <div class="card m-4"
-           style="width: 27%; max-height: 50%; background-color: lightgreen"
+           style="min-width: 27%; max-width: 30%; height: fit-content; background-color: lightgreen"
            v-for="(battle,index) in battles"
            :key="index"
       >
@@ -78,16 +95,22 @@
         <div class="card-body m-2" style="display: flex; flex-direction: column; justify-content: space-between">
           <div>
             <p v-if="battle.status==='ONGOING'">Started on: <strong>{{battle.reg}}</strong></p>
-            <div v-else>
+            <div v-if="battle.status==='CONSOLIDATION'||battle.status==='CLOSED'">
+              <p>Finished on: <strong>{{battle.sub}}</strong></p>
+              <p v-if="battle.status==='CONSOLIDATION'"><em>Evaluation in progress</em></p>
+              <p v-if="battle.status==='CLOSED'"><em>Closed</em></p>
+            </div>
+            <div v-if="battle.status==='REGISTRATION'">
               <p>Register before: <strong>{{battle.reg}}</strong></p>
               <p>Members: {{battle.min}} - {{battle.max}}</p>
             </div>
 
-
-
           </div>
           <div style="display: flex">
-            <a v-if="battle.subscribed||(role==='EDUCATOR'&&(username===admin||moderators.includes(username)))" href="#">See Info</a>
+            <a v-if="battle.subscribed||(role==='EDUCATOR'&&(username===admin||moderators.includes(username)))"
+               href="#"
+               @click="this.$router.push('/battleINFO/'+this.tntName+'-'+battle.name)"
+            >See Info</a>
 
             <div v-if="battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&battle.joining" style="display: flex; justify-content: space-between">
               <button class="btn btn-secondary btn-sm" style="flex: 1; max-width: fit-content" @click.prevent="battle.joining=false">Form Team</button>
@@ -127,6 +150,7 @@
                 class="text-warning text-center"
                 role="alert"
                 v-if="battle.error!==''"
+                style="text-wrap: normal"
             >
               {{battle.error}}
             </p>
@@ -135,7 +159,7 @@
       </div>
 
       <div class="card m-4"
-           style="width: 40%; min-height: 50%"
+           style="width: 40%; min-height: 50%; margin-bottom: 0"
            v-if="role==='EDUCATOR'&&(username===admin||moderators.includes(username))"
       >
         <div class="card-header">
@@ -174,6 +198,10 @@
             <p style="display: flex; align-items: center">Output file(s): </p>
             <input type="file" @change="updateOutput" multiple>
           </div>
+          <div class="container align-items-center" style="display: flex; flex-direction: row; justify-content:space-between">
+            <p style="display: flex; align-items: center">WORKFLOW config file: </p>
+            <input type="file" @change="updateConfig">
+          </div>
 
           <div v-if="errorNewBattle!==''" class="container" style="display: flex; flex-direction: row; justify-content:center">
             <p
@@ -186,7 +214,6 @@
           <div v-if="successNewBattle!==''" class="container" style="display: flex; flex-direction: row; justify-content:center">
             <p
                 class="text-success text-center"
-                role="success"
             >
               {{ this.successNewBattle }}
             </p>
@@ -202,7 +229,6 @@
 </template>
 
 <script>
-import myTournaments from "@/components/MyTournaments.vue";
 import myBattles from "@/components/MyBattles.vue";
 export default {
   name: 'tntINFO',
@@ -225,11 +251,13 @@ export default {
       visibility: '',
       regDeadline: ' ',
       status: '',
+      newModerator: '',
       students: [],
       battles: [],
       inputFiles: [],
       outputFiles: [],
       descriptionFile: null,
+      configFile: null,
       battleCreationDTO: {
         name: '',
         tournamentName: null,
@@ -238,13 +266,15 @@ export default {
         codeKata: {
           input: [],
           output: [],
-          description: ''
+          description: '',
+          configurationFile: ''
         },
         maxPlayers: 1,
         minPlayers: 1
       },
       errorNewBattle: '',
       successNewBattle: '',
+      errorPromote: '',
       statusCODE: 0
     }
   },
@@ -253,13 +283,110 @@ export default {
         () => this.$route.params,
         () => {
           this.fetchINFO();
-          this.fetchBattles();
+          this.setTopRightButton();
         },
         { immediate: true }
     )
     this.minDays = this.setDisabledDays();
   },
   methods: {
+    fetchINFO() {
+      let endpoint = this.role==='EDUCATOR' ? ('/api/eduTnt/tntInfo?name='+this.$route.params.name) : ('/api/studTnt/tntInfo?name='+this.$route.params.name)
+      let requestOptions = {
+        method: 'GET',
+        headers: {'Authorization': 'Bearer '+localStorage.getItem('token')}
+      }
+
+      fetch(endpoint,requestOptions)
+          .then(response => {
+            if (response.ok) return response.json();
+            else if (response.status === 401) throw new Error("Unauthorized");
+            throw new Error(response.statusText);
+          })
+          .then(data => {
+            this.tntName = data.name;
+            this.admin = data.admin;
+            this.moderators = data.moderators;
+            this.visibility = data.visibility;
+            this.regDeadline = this.dateToLocaleString(data.registrationDeadline);
+
+            if ((new Date(data.registrationDeadline))>(new Date())) this.status = 'REGISTRATION';
+            else this.status = 'ONGOING';
+
+            this.students = [];
+            for (const [key, value] of Object.entries(data.rank)) {
+              this.students.push({
+                name: key,
+                points: value
+              })
+            }
+            this.fetchBattles();
+          })
+          .catch(error => {
+            if (error.message === "Unauthorized") this.$router.push('/login');
+          })
+
+
+    },
+    fetchBattles(){
+      let endpoint = this.role==='EDUCATOR' ? '/api/eduBattle/tntBattles?tournamentName='+this.$route.params.name : '/api/studTeam/tntBattles?tournamentName='+this.$route.params.name;
+      let requestOptions = {
+        method: 'GET',
+        headers: {'Authorization': 'Bearer '+localStorage.getItem('token')}
+      }
+
+      fetch(endpoint,requestOptions)
+          .then(response => {
+            if (response.ok) return response.json();
+            else if (response.status === 401) throw new Error("Unauthorized");
+            throw new Error(response.statusText);
+          })
+          .then(data => {
+            this.battles = [];
+            var myB = myBattles.methods.getMyB();
+
+            for (let b of data) {
+              let battle = {
+                name: b.name.substring(this.tntName.length+1),
+                min: b.minPlayers,
+                max: b.maxPlayers,
+                reg: this.dateToLocaleString(b.registrationDeadline),
+                sub: this.dateToLocaleString(b.submitDate),
+                end: null,
+                status: null,
+                subscribed: false,
+                keyword: '',
+                teamName: '',
+                joining: false,
+                error: ''
+              }
+              if (myB.includes(b.name)) battle.subscribed = true;
+
+              let d = new Date(b.registrationDeadline);
+              let s = new Date(b.submitDate);
+
+              let e = null;
+              if (b.endDate!==null) {
+                e = new Date(b.endDate);
+                battle.end = this.dateToLocaleString(b.endDate);
+              } else e = new Date("3100");
+
+
+              let now = new Date();
+              if (now>e) battle.status = 'CLOSED';
+              else if (now>s) battle.status = 'CONSOLIDATION';
+              else if (now>d) battle.status = 'ONGOING';
+              else battle.status = 'REGISTRATION';
+
+              this.battles.push(battle);
+            }
+
+            this.setTopRightButton();
+          })
+          .catch(error => {
+            if (error.message === "Unauthorized") this.$router.push('/login');
+          })
+    },
     updateInput(event) {
       this.inputFiles = Array.from(event.target.files);
     },
@@ -268,6 +395,9 @@ export default {
     },
     updateDescription(event) {
       this.descriptionFile = event.target.files[0];
+    },
+    updateConfig(event) {
+      this.configFile = event.target.files[0];
     },
     readFile(file) {
       return new Promise((resolve, reject) => {
@@ -308,11 +438,18 @@ export default {
         this.errorNewBattle = 'Error reading file: '+e;
       }
 
-      console.log(inputContents, outputContents,description)
+      let config = '';
+
+      try {
+        config = await this.readFile(this.configFile);
+      } catch (e) {
+        this.errorNewBattle = 'Error reading file: '+e;
+      }
 
       this.battleCreationDTO.codeKata.input = inputContents;
       this.battleCreationDTO.codeKata.output = outputContents;
       this.battleCreationDTO.codeKata.description = description;
+      this.battleCreationDTO.codeKata.configurationFile = config;
       this.battleCreationDTO.tournamentName = this.tntName;
 
       let endpoint = '/api/eduBattle/create'
@@ -333,6 +470,7 @@ export default {
             else if (this.statusCODE === 200) {
               this.errorNewBattle = '';
               this.successNewBattle = data;
+              this.fetchBattles();
             }
             else {
               this.successNewBattle = '';
@@ -361,7 +499,7 @@ export default {
       fetch(endpoint,requestOptions)
           .then(response => {
             if (response.ok) this.subButton.disabled = true;
-            console.log(this.subButton)
+            this.fetchINFO();
           })
     },
     joinTeam(b) {
@@ -377,8 +515,10 @@ export default {
       console.log(requestOptions.body,endpoint);
       fetch(endpoint,requestOptions)
           .then(response => {
-            if (response.ok) b.subscribed = true;
-            else b.error = response.text();
+            if (response.ok) {
+              b.subscribed = true;
+            }
+            else return response.text().then(error => b.error=error);
           })
 
     },
@@ -395,10 +535,62 @@ export default {
       console.log(requestOptions.body,endpoint);
       fetch(endpoint,requestOptions)
           .then(response => {
-            if (response.ok) b.subscribed = true;
-            else b.error = response.text();
+            if (response.ok) {
+              b.subscribed = true;
+            }
+            else return response.text().then(error => b.error=error);
           })
 
+    },
+    promote() {
+      let endpoint = '/api/eduTnt/promote';
+      let requestOptions = {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer '+localStorage.getItem('token'), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name: this.tntName,
+          moderator: this.newModerator
+        })
+      }
+
+      fetch(endpoint,requestOptions)
+          .then(response =>{
+            if (response.ok) this.fetchINFO();
+            else if (response.status === 401) this.$router.push('/login');
+            else return response.text().then(error => this.errorPromote = error)
+          })
+
+    },
+    close(){
+      let endpoint = '/api/eduTnt/close';
+      let requestOptions = {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer '+localStorage.getItem('token'), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name: this.tntName
+        })
+      }
+
+      fetch(endpoint,requestOptions)
+          .then(response => {
+            if (response.ok) this.$router.push('/dashboard/home');
+            else if (response.status === 401) this.$router.push('/login');
+            else return response.text().then(error => console.log(error))
+          })
+
+    },
+    checkIfAllBClosed() {
+      let flag = true;
+      for (const b of this.battles) {
+        if (b.status !== 'CLOSED') flag = false;
+      }
+      return flag;
+    },
+    checkIfSubscribed(stud) {
+      for (const s of this.students) {
+        if (s.name===stud) return true;
+      }
+      return false;
     },
     setDisabledDays() {
       let now = new Date();
@@ -409,6 +601,28 @@ export default {
       let minutes = now.getMinutes().toString().padStart(2, '0');
 
       return `${year}-${month}-${day}T${hours}:${minutes}`;
+    },
+    setTopRightButton() {
+      this.subButton.present = false;
+      this.closeButton.present = false;
+      this.subButton.disabled = true;
+      this.closeButton.disabled = true;
+      if (this.role === 'STUDENT') {
+        this.closeButton.present = false;
+        if (this.visibility !== 'PRIVATE') this.subButton.present = true;
+        if (this.status==='REGISTRATION') this.subButton.disabled = this.checkIfSubscribed(this.username);
+      }
+      if (this.role === 'EDUCATOR') {
+        this.subButton.present = false;
+        if (this.admin === this.username) {
+          this.closeButton.present = true;
+          this.closeButton.disabled = !this.checkIfAllBClosed();
+        }
+      }
+    },
+    dateToLocaleString(d) {
+      let localDate = new Date(d)
+      return localDate.toLocaleString('it-IT', {dateStyle: "medium", timeStyle: "short"})
     }
   }
 }
