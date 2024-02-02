@@ -147,7 +147,7 @@ export default {
                 localStorage.setItem("username", data.username);
                 localStorage.setItem("role", data.role)
                 this.errorMessage = '';
-                this.successMessage = 'Successfully logged in';
+                this.$router.push('/dashboard/home');
               });
             } else {
               return response.text().then(error => {

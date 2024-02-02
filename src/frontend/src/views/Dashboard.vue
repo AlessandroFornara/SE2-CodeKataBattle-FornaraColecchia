@@ -151,7 +151,7 @@ export default {
 }
 .menu {
   height: 100vh;
-  min-width: 25vw;
+  min-width: 20vw;
   background-color: mediumseagreen;
   display: flex;
   flex-direction: column;
