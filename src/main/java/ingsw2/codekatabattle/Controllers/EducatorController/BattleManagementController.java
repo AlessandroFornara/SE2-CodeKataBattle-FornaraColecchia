@@ -20,6 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Controller for managing battles, specifically designed for users with the 'EDUCATOR' role.
+ * This controller offers functionalities like creating battles, closing the consolidation stage of a battle, evaluating teams,
+ * and retrieving battle-related information.
+ * All endpoints are mapped under the "/api/eduBattle" base URL and require the user to be authenticated and authorized as an 'EDUCATOR'.
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/eduBattle")
@@ -27,6 +33,12 @@ public class BattleManagementController {
 
     private final BattleService battleService;
 
+    /**
+     * Creates a new battle.
+     * This method allows educators to set up a new battle by providing necessary details through a DTO.
+     * @param battleCreationDTO DTO containing battle creation details like name, tournament name, deadlines, code kata, player limits.
+     * @return A ResponseEntity containing the server response indicating the outcome of the battle creation operation.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/create")
     public ResponseEntity<?> createBattle(@Valid @RequestBody BattleCreationDTO battleCreationDTO){
@@ -48,7 +60,12 @@ public class BattleManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
-
+    /**
+     * Closes the consolidation stage of a battle.
+     * This endpoint is used by educators to mark the end of the consolidation phase of a battle.
+     * @param closeConsolidationStageDTO DTO containing the name of the battle for which the consolidation stage is to be closed.
+     * @return A ResponseEntity with the outcome of the consolidation stage closure operation.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/close")
     public ResponseEntity<?> closeConsolidationStage(@Valid @RequestBody CloseConsolidationStageDTO closeConsolidationStageDTO){
@@ -61,6 +78,12 @@ public class BattleManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+    /**
+     * Modifies the evaluation of a team in a battle.
+     * Educators can use this endpoint to evaluate student submissions, assigning points to each participant.
+     * @param evaluateDTO DTO containing details for the evaluation process, including battle name, participant usernames, and points awarded.
+     * @return A ResponseEntity indicating whether the evaluation was successful or not.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/evaluate")
     public ResponseEntity<?> evaluate(@Valid @RequestBody EvaluateDTO evaluateDTO){
@@ -76,6 +99,10 @@ public class BattleManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+    /**
+     * Retrieves the list of battles created by the currently authenticated educator.
+     * @return A ResponseEntity containing a list of MyBattlesDTO objects representing the battles created by the educator.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @GetMapping("/myBattles")
     public ResponseEntity<?> getMyBattles(){
@@ -84,6 +111,11 @@ public class BattleManagementController {
         return ResponseEntity.ok(myBattles);
     }
 
+    /**
+     * Fetches detailed information about a specific battle.
+     * @param name The name of the battle to retrieve information for.
+     * @return A ResponseEntity containing the Battle object if found, or an error message if the battle doesn't exist.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @GetMapping("/battleInfo")
     public ResponseEntity<?> getBattleInfo(@RequestParam String name){
@@ -104,6 +136,11 @@ public class BattleManagementController {
         return ResponseEntity.ok(battle);
     }
 
+    /**
+     * Retrieves a list of battles associated with a specific tournament.
+     * @param tournamentName The name of the tournament to retrieve battles for.
+     * @return A ResponseEntity containing a list of battles related to the specified tournament.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @GetMapping("/tntBattles")
     public ResponseEntity<?> getTournamentBattles(@RequestParam String tournamentName){

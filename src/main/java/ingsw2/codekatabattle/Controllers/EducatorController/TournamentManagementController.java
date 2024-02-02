@@ -22,6 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Controller handling tournament management operations for educators.
+ * All endpoints are mapped under the "/api/eduTnt" base URL.
+ * This controller allows educators to create, close, and manage tournaments,
+ * promote users to moderators, and view their tournaments and tournament details.
+ * Access to these endpoints is restricted to authenticated users with the 'EDUCATOR' role.
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/eduTnt")
@@ -29,6 +36,12 @@ public class TournamentManagementController {
 
     private final TournamentService tournamentService;
 
+    /**
+     * Creates a new tournament. The details for the creation of the tournament, such as name, registration deadline,
+     * and visibility, are provided in the TournamentCreationDTO.
+     * @param tournamentCreationDTO The DTO containing the tournament creation details.
+     * @return A ResponseEntity containing either a success message (with a keyword for private tournaments) or an error message.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping ("/create")
     public ResponseEntity<?> createTournament(@Valid @RequestBody TournamentCreationDTO tournamentCreationDTO) {
@@ -46,6 +59,11 @@ public class TournamentManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result.getServerResponse()));
     }
 
+    /**
+     * Closes an existing tournament. The name of the tournament to be closed is provided in the TournamentClosureDTO.
+     * @param tournamentClosureDTO The DTO containing the tournament closure details.
+     * @return A ResponseEntity indicating the outcome of the tournament closure operation.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/close")
     public ResponseEntity<?> closeTournament(@Valid @RequestBody TournamentClosureDTO tournamentClosureDTO){
@@ -57,6 +75,12 @@ public class TournamentManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+    /**
+     * Promotes a user to the role of a moderator for a specific tournament.
+     * The details for the promotion, including the tournament name and the user to be promoted, are provided in the PromoteToModeratorDTO.
+     * @param promoteToModeratorDTO The DTO containing the promotion details.
+     * @return A ResponseEntity indicating the outcome of the promotion operation.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @PostMapping("/promote")
     public ResponseEntity<?> promoteToModerator(@Valid @RequestBody PromoteToModeratorDTO promoteToModeratorDTO){
@@ -71,6 +95,10 @@ public class TournamentManagementController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+    /**
+     * Retrieves a list of tournaments that the currently authenticated educator is involved in.
+     * @return A ResponseEntity containing a list of MyTournamentsDTO objects representing the educator's tournaments.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @GetMapping("/myTnt")
     public ResponseEntity<?> getMyTournaments(){
@@ -79,6 +107,11 @@ public class TournamentManagementController {
         return ResponseEntity.ok(tournamentList);
     }
 
+    /**
+     * Fetches detailed information about a specific tournament.
+     * @param name The name of the tournament to retrieve information for.
+     * @return A ResponseEntity containing the Tournament object if found, or an error message if the tournament doesn't exist.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @GetMapping("/tntInfo")
     public ResponseEntity<?> getTournamentInfo(@RequestParam String name){
@@ -98,6 +131,10 @@ public class TournamentManagementController {
         return ResponseEntity.ok(tournament);
     }
 
+    /**
+     * Retrieves a list of upcoming and ongoing tournaments.
+     * @return A ResponseEntity containing a list of UpcomingAndOngoingTntDTO objects representing upcoming and ongoing tournaments.
+     */
     @PreAuthorize("hasRole('EDUCATOR')")
     @GetMapping("/homePageTnt")
     public ResponseEntity<?> getUpcomingTournaments(){

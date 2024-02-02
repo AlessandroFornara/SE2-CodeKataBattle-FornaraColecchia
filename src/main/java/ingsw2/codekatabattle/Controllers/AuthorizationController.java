@@ -40,6 +40,15 @@ public class AuthorizationController {
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Authenticates a user based on the provided login credentials.
+     * @param loginDTO The login request containing user credentials (stored in a {@link LoginDTO} object).
+     *
+     * @return {@link ResponseEntity} containing the authentication result:
+     *         If authentication is successful, returns a 200 OK status with a JWT token in the response body.
+     *         If authentication fails due to invalid credentials, returns an Unprocessable Entity status
+     *         with an error message indicating invalid credentials.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO)  {
 
@@ -67,6 +76,16 @@ public class AuthorizationController {
         }
     }
 
+    /**
+     * Registers a new user based on the provided registration request.
+     * @param registerDTO The registration request containing user details.
+     *                    The details are stored in a {@link RegisterDTO} object.
+     *
+     * @return {@link ResponseEntity} indicating the success or failure of the user registration:
+     *         If registration is successful, returns a 200 OK status with a success message.
+     *         If registration fails, returns an Unprocessable Entity status with an error message
+     *         indicating the reason for the failure.
+     */
     @PostMapping ("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO registerDTO){
 
@@ -83,6 +102,14 @@ public class AuthorizationController {
         }
     }
 
+    /**
+     * Retrieves user information based on the currently authenticated user.
+     * Requires the user to have either 'EDUCATOR' or 'STUDENT' role for access.
+     * @return {@link ResponseEntity} containing user information in the body if the user is found,
+     *         otherwise returns an Unprocessable Entity status with an error message indicating
+     *         that the user is not registered.
+     *         The user information is stored in a {@link UserDTO} object.
+     */
     @PreAuthorize("hasAnyRole('EDUCATOR', 'STUDENT')")
     @GetMapping("/userInformation")
     public ResponseEntity<?> getUserInformation(){

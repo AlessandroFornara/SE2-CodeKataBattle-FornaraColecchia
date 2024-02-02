@@ -11,6 +11,11 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 
+/**
+ * Configuration class for MongoDB
+ * It sets up the database name, MongoClient, and transaction management specific to MongoDB.
+ * Note: This class fetches the MongoDB URI from the application's properties file and uses it to configure the MongoClient.
+ */
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration {
 

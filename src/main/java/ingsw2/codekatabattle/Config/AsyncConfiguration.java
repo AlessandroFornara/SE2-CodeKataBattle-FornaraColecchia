@@ -8,6 +8,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
+/**
+ * Configuration class for setting up asynchronous processing.
+ * This class enables the use of @Async annotation in the application.
+ */
 @Configuration
 @EnableAsync
 public class AsyncConfiguration implements AsyncConfigurer {

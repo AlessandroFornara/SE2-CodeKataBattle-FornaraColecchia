@@ -7,6 +7,10 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
+/**
+ * Configuration class for setting up email functionality.
+ * This class defines a bean to configure and instantiate a JavaMailSender to send notifications.
+ */
 @Configuration
 public class EmailConfiguration {
     @Bean

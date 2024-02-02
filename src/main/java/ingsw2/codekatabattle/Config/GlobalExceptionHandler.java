@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class uses @ControllerAdvice to provide centralized exception handling across all @RequestMapping methods in the application.
+ * It handles various types of exceptions, providing appropriate HTTP responses.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

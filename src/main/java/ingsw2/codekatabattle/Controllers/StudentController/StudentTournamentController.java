@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Controller handling tournament-related operations for students.
+ * All endpoints are mapped under the "/api/studTnt" base URL.
+ * This controller enables students to subscribe to tournaments, view their enrolled tournaments, access detailed tournament
+ * information, and view upcoming and ongoing tournaments. Access is restricted to authenticated users with the 'STUDENT' role.
+ */
 @RestController
 @RequestMapping("/api/studTnt")
 @AllArgsConstructor
@@ -26,6 +32,11 @@ public class StudentTournamentController {
 
     private final TournamentService tournamentService;
 
+    /**
+     * Subscribes a student to a tournament.
+     * @param subscribeTntDTO The DTO containing subscription details (tournament name/keyword, public/private status).
+     * @return A ResponseEntity containing the server response indicating the outcome of the subscription operation.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/subscribe")
     public ResponseEntity<?> subscribe(@Valid @RequestBody SubscribeTntDTO subscribeTntDTO){
@@ -44,6 +55,10 @@ public class StudentTournamentController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result));
     }
 
+    /**
+     * Retrieves the list of tournaments that the currently authenticated student is subscribed to.
+     * @return A ResponseEntity containing a list of MyTournamentsDTO objects representing the student's tournaments.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/myTnt")
     public ResponseEntity<?> getMyTournaments(){
@@ -52,6 +67,11 @@ public class StudentTournamentController {
         return ResponseEntity.ok(tournamentList);
     }
 
+    /**
+     * Fetches detailed information about a specific tournament.
+     * @param name The name of the tournament to retrieve information for.
+     * @return A ResponseEntity containing the Tournament object if found, or an error message if the tournament doesn't exist.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/tntInfo")
     public ResponseEntity<?> getTournamentInfo(@RequestParam String name){
@@ -71,6 +91,10 @@ public class StudentTournamentController {
         return ResponseEntity.ok(tournament);
     }
 
+    /**
+     * Retrieves a list of upcoming and ongoing tournaments.
+     * @return A ResponseEntity containing a list of UpcomingAndOngoingTntDTO objects representing upcoming and ongoing tournaments.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/homePageTnt")
     public ResponseEntity<?> getUpcomingAndOngoingTournaments(){

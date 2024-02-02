@@ -17,6 +17,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * This class is the configuration of the Web Security Backend offered by Spring framework.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -27,6 +30,7 @@ public class SecurityConfig  {
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
 
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder PasswordEncoder)
             throws Exception {
@@ -34,8 +38,6 @@ public class SecurityConfig  {
         authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(PasswordEncoder);
         return authenticationManagerBuilder.build();
     }
-
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,6 +47,7 @@ public class SecurityConfig  {
                         "/api/eduTnt/**",
                         "/api/studTeam/**",
                         "/api/studTnt/**",
+                        "/api/auth/userInformation",
                         "/api/seeInfo/**")
                 .authorizeRequests()
                 .anyRequest().authenticated()

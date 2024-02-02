@@ -20,6 +20,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Controller handling battle-related operations for students.
+ * All endpoints are mapped under the "/api/studTeam" base URL.
+ * It offers functionalities like creating and joining teams, accessing student-specific battle details,
+ * and retrieving battle information related to specific tournaments.
+ * Access to these endpoints is restricted to authenticated users with the 'STUDENT' role.
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/studTeam")
@@ -27,6 +34,12 @@ public class StudentBattleController {
 
     private final BattleService battleService;
 
+    /**
+     * Creates a new team for a specific battle. The team's name, the battle's name, and the username of the
+     * creating student are provided in the TeamCreationDTO.
+     * @param teamCreationDTO The DTO containing the team creation details.
+     * @return A ResponseEntity containing either a success message with the team's keyword or an error message.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/create")
     public ResponseEntity<?> createTeam(@Valid @RequestBody TeamCreationDTO teamCreationDTO){
@@ -40,6 +53,11 @@ public class StudentBattleController {
             return ResponseEntity.unprocessableEntity().body(ServerResponse.toString(result.getServerResponse()));
     }
 
+    /**
+     * Allows a student to join an existing team in a battle using a unique keyword.
+     * @param joinTeamDTO The DTO containing the join team details, including the keyword and battle's name.
+     * @return A ResponseEntity indicating the outcome of the join team operation.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/join")
     public ResponseEntity<?> JoinTeam(@Valid @RequestBody JoinTeamDTO joinTeamDTO){
@@ -54,6 +72,10 @@ public class StudentBattleController {
 
     }
 
+    /**
+     * Retrieves a list of battles that the currently authenticated student is involved in.
+     * @return A ResponseEntity containing a list of MyBattlesDTO objects representing the student's battles.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/myBattles")
     public ResponseEntity<?> getMyBattles(){
@@ -62,6 +84,11 @@ public class StudentBattleController {
         return ResponseEntity.ok(myBattles);
     }
 
+    /**
+     * Fetches detailed information about a specific battle.
+     * @param name The name of the battle to retrieve information for.
+     * @return A ResponseEntity containing the Battle object if found, or an error message if the battle doesn't exist.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/battleInfo")
     public ResponseEntity<?> getBattleInfo(@RequestParam String name){
@@ -82,6 +109,11 @@ public class StudentBattleController {
         return ResponseEntity.ok(battle);
     }
 
+    /**
+     * Retrieves a list of battles associated with a specific tournament.
+     * @param tournamentName The name of the tournament to retrieve battles for.
+     * @return A ResponseEntity containing a list of battles related to the specified tournament.
+     */
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/tntBattles")
     public ResponseEntity<?> getTournamentBattles(@RequestParam String tournamentName){
