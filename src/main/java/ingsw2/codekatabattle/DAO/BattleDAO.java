@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -61,7 +62,7 @@ public class BattleDAO {
     public List<MyBattlesDTO> getBattlesByEducator(String username){
 
         Query q = new Query();
-        Criteria notClosed = Criteria.where("submitDate").gt(new Date());
+        Criteria notClosed = Criteria.where("endDate").isNull();
         Criteria creator = Criteria.where("creator").is(username);
 
         q.addCriteria(new Criteria().andOperator(notClosed, creator));
@@ -76,7 +77,7 @@ public class BattleDAO {
     public List<MyBattlesDTO> getBattlesByStudent(String username){
 
         Query q = new Query();
-        Criteria notClosed = Criteria.where("submitDate").gt(new Date());
+        Criteria notClosed = Criteria.where("endDate").isNull();
         Criteria team = Criteria.where("teams.members").in(username);
 
         q.addCriteria(new Criteria().andOperator(notClosed, team));
@@ -88,7 +89,6 @@ public class BattleDAO {
 
     }
 
-    //TODO: Da testare
     public Battle getBattleInfo(String name){
         Query q = new Query();
 
@@ -107,7 +107,6 @@ public class BattleDAO {
         return mongoOperations.exists(q, collectionName);
     }
 
-    //TODO: TESTARE
     public KeywordResponse createTeam(Team team, String battle, String creator){
 
         Query q = new Query();
@@ -163,7 +162,7 @@ public class BattleDAO {
     public boolean checkIfSubscribed(String username, String battle) {
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(battle));
-        query.addCriteria(Criteria.where("teams.members." + username).exists(true));
+        query.addCriteria(Criteria.where("teams.members").in(username));
 
         long count = mongoOperations.count(query, collectionName);
 
@@ -215,6 +214,7 @@ public class BattleDAO {
         Update update = new Update();
         update.filterArray(Criteria.where("t.members").in(usernames));
         update.set("teams.$[t].scores", points);
+        update.set("teams.$[t].points", Arrays.stream(points).average());
 
         UpdateResult updateResult = mongoOperations.updateFirst(query, update, Battle.class);
 

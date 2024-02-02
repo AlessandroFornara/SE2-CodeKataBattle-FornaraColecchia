@@ -5,6 +5,11 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.regex.Pattern;
 
+/**
+ * Custom validator for the NoSpecialCharacters constraint.
+ * This validator implements the ConstraintValidator interface, providing the logic to validate that a string
+ * does not contain special characters.
+ */
 public class NoSpecialCharactersValidator implements ConstraintValidator<NoSpecialCharacters, String> {
 
     private static final String SPECIAL_CHARACTERS_REGEX = "[^a-zA-Z0-9]+";

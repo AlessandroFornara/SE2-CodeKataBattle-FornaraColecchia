@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @Getter
 @Setter
@@ -12,5 +14,6 @@ public class MyTournamentsDTO {
 
     private String _id;
     private TournamentVisibility visibility;
+    private Date endDate;
 
 }

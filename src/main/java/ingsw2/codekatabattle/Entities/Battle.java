@@ -7,6 +7,10 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * This class is the representation of the Battle database entity.
+ * @Document(collection = "Battle") - This annotation specifies that this entity is stored in the "Battle" collection in MongoDB.
+ */
 @Document(collection = "Battle")
 @Getter
 public class Battle {

@@ -5,6 +5,10 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
+/**
+ * Custom constraint annotation for validating that a string does not contain special characters or spaces.
+ * It utilizes the NoSpecialCharactersValidator class to perform the actual validation logic.
+ */
 @Documented
 @Constraint(validatedBy = NoSpecialCharactersValidator.class)
 @Target({ElementType.FIELD})

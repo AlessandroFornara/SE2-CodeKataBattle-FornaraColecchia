@@ -7,6 +7,10 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+/**
+ * This class is the representation of the User database entity.
+ * @Document(collection = "User") - This annotation specifies that this entity is stored in the "User" collection in MongoDB.
+ */
 @Document(collection = "User")
 @NoArgsConstructor
 @Getter

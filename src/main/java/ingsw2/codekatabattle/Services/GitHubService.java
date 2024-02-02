@@ -3,8 +3,10 @@ package ingsw2.codekatabattle.Services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ingsw2.codekatabattle.DAO.BattleDAO;
-import lombok.AllArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -12,17 +14,36 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+/**
+ * Service class for handling GitHub related operations in the Code Kata Battle application.
+ * This service includes methods for creating GitHub repositories, uploading files to these repositories, and computing points based on submissions.
+ */
 @Service
-@AllArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class GitHubService {
 
     private final String createRepoUrl = "https://api.github.com/user/repos";
     private final String uploadFileUrl = "https://api.github.com/repos/USER_NAME/REPO_NAME/contents/FILE_PATH";
-    private final String accessToken = "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";
-    private final String username = "AlessandroFornara";
+    @Value("${gitHub.accessToken}")
+    private String accessToken;
+    @Value("${gitHub.username}")
+    private String username;
     private final BattleDAO battleDAO;
+    private final NotificationService notificationService;
 
+    @PostConstruct
+    public void printTokenAndUsername(){
+        System.out.println(this.accessToken);
+        System.out.println(this.username);
+    }
+
+    /**
+     * Creates a new GitHub repository with the specified name.
+     * The repository is created as a private repository under the configured GitHub account.
+     * @param name The name of the GitHub repository to be created.
+     * @return The URL of the newly created repository or null if the creation failed.
+     */
     private String createRepository(String name) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "token " + accessToken);
@@ -51,7 +72,13 @@ public class GitHubService {
         return null;
     }
 
-    private void uploadFilesToGitHub(HashMap<String, String> files, String repoName, String s) {
+    /**
+     * Uploads a set of files to a specified GitHub repository.
+     * This method takes a map of filenames to their contents and uploads each to the GitHub repository.
+     * @param files A HashMap containing the filenames and their respective content to be uploaded.
+     * @param repoName The name of the repository where the files will be uploaded.
+     */
+    private void uploadFilesToGitHub(HashMap<String, String> files, String repoName) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "token " + accessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -82,20 +109,35 @@ public class GitHubService {
         }
     }
 
+    /**
+     * Asynchronously creates a GitHub repository and uploads provided files to it.
+     * After creating the repository and uploading the files, it updates the battle's information with the repository link and sends a notification.
+     * @param repoName The name of the repository to be created.
+     * @param files A HashMap of filenames and their contents to be uploaded to the repository.
+     */
     @Async
     public void createRepositoryAndUploadFiles(String repoName, HashMap<String, String> files) {
         String repoUrl = createRepository(repoName);
 
         if (repoUrl != null && !repoUrl.isEmpty()) {
-            uploadFilesToGitHub(files, repoName, repoUrl);
+            uploadFilesToGitHub(files, repoName);
         } else {
             log.error("Failed to create repository " + repoName + ". Files were not uploaded.");
         }
         battleDAO.saveRepoLink(repoUrl, repoName);
         battleDAO.deleteInvalidTeams(repoName);
-        //notificationService.notifyBattleStart();
+        notificationService.notifyBattleStart(repoName, repoUrl);
     }
 
+    /**
+     * Computes the points for a battle submission.
+     * The method compares the submitted outputs with the expected outputs and calculates points based on accuracy and timeliness.
+     * @param registrationDeadline The deadline for registration for the battle.
+     * @param submitDate The deadline for submitting the solution.
+     * @param educatorOutputs The expected outputs provided by the educator.
+     * @param outputs The outputs submitted by the participants.
+     * @return The calculated points for the submission, capped at 100.
+     */
     public int computePoints(Date registrationDeadline, Date submitDate, List<String> educatorOutputs, List<String> outputs){
 
         int totalPoints = 0;

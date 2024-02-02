@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Custom implementation of AuthenticationEntryPoint for the Code Kata Battle application.
+ * This class is used to handle authentication errors during the Spring Security process.
+ * It customizes the response sent to clients when authentication fails, for instance, due to expired or invalid authentication credentials.
+ */
 @Component("CustomAuthenticationEntryPoint")
 @AllArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {

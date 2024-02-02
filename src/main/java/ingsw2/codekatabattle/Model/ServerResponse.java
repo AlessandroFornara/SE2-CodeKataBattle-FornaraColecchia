@@ -1,5 +1,9 @@
 package ingsw2.codekatabattle.Model;
 
+/**
+ * Enum defining various server responses.
+ * This enum encapsulates different types of responses that the server can send back to clients.
+ */
 public enum ServerResponse {
 
     AUTOMATED_EVALUATION_OK,

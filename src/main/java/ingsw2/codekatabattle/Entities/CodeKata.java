@@ -8,6 +8,9 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 
+/**
+ * This class is the representation of a CodeKata.
+ */
 @AllArgsConstructor
 @Getter
 public class CodeKata {

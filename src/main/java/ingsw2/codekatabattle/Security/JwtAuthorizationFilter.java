@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Custom filter for JWT authorization.
+ * It is responsible for intercepting HTTP requests and validating JWT tokens to establish the user's identity and authorities.
+ */
 @Component("JwtAuthorizationFilter")
 @AllArgsConstructor
 @Slf4j

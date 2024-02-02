@@ -2,6 +2,9 @@ package ingsw2.codekatabattle.Utils;
 
 import java.security.SecureRandom;
 
+/**
+ * Utility class for generating random keywords.
+ */
 public class KeywordGenerator {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";

@@ -26,7 +26,6 @@ public class UserDAO {
         List<User> result = mongoOperations.find(q, User.class, collectionName);
 
         if(result.isEmpty()){
-            //non esiste uno user con quello username
             return null;
         } else {
             return result.get(0);

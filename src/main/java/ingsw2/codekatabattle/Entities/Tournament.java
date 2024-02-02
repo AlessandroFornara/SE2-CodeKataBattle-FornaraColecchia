@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * This class is the representation of the Tournament database entity.
+ * @Document(collection = "Tournament") - This annotation specifies that this entity is stored in the "Tournament" collection in MongoDB.
+ */
 @Document(collection = "Tournament")
 @Getter
 public class Tournament {
@@ -34,4 +38,5 @@ public class Tournament {
         this.registrationDeadline = registrationDeadline;
         this.keyword = keyword;
     }
+
 }

@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Custom implementation of UserDetailsService.
+ * This class provides a custom way to retrieve user details for Spring Security authentication processes.
+ */
 @Component("CustomUserDetailsService")
 @AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

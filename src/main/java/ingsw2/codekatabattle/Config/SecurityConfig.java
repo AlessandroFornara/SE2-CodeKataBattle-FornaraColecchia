@@ -47,8 +47,7 @@ public class SecurityConfig  {
                         "/api/eduTnt/**",
                         "/api/studTeam/**",
                         "/api/studTnt/**",
-                        "/api/auth/userInformation",
-                        "/api/seeInfo/**")
+                        "/api/auth/userInformation")
                 .authorizeRequests()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

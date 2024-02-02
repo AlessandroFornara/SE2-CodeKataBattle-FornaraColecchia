@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 
+/**
+ * This class is the representation of a Team.
+ */
 @AllArgsConstructor
 @Getter
 public class Team {

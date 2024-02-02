@@ -37,7 +37,6 @@ public class TournamentDAO {
         }
     }
 
-
     public boolean checkIfKeywordAlreadyExists(String kw){
 
         Query q = new Query();
@@ -99,7 +98,6 @@ public class TournamentDAO {
         }
     }
 
-
     public ServerResponse promoteToModerator(String admin, String name, String moderator){
 
         Query q =new Query();
@@ -140,12 +138,13 @@ public class TournamentDAO {
         Query q =new Query();
         Criteria isAdmin = Criteria.where("admin").is(username);
         Criteria isModerator = Criteria.where("moderators").is(username);
-        Criteria notClosed = Criteria.where("endDate").isNull();
+        //Criteria notClosed = Criteria.where("endDate").isNull();
 
         Criteria isAdminOrModerator = new Criteria().orOperator(isAdmin, isModerator);
-        q.addCriteria(new Criteria().andOperator(isAdminOrModerator, notClosed));
+        q.addCriteria(isAdminOrModerator);
         q.fields().include("_id");
         q.fields().include("visibility");
+        q.fields().include("endDate");
 
         q.with(Sort.by(Sort.Direction.ASC, "_id"));
 
@@ -161,6 +160,7 @@ public class TournamentDAO {
         q.addCriteria(new Criteria().andOperator(isSubscribed, notClosed));
         q.fields().include("_id");
         q.fields().include("visibility");
+        q.fields().include("endDate");
 
         return mongoOperations.find(q, MyTournamentsDTO.class, collectionName);
     }
@@ -172,7 +172,7 @@ public class TournamentDAO {
         Criteria isAdmin = Criteria.where("admin").is(username);
         Criteria isModerator = Criteria.where("moderators").is(username);
         Criteria isAdminOrModerator = new Criteria().orOperator(isAdmin, isModerator);
-        Criteria notClosed = Criteria.where("endDate").isNull();
+        //Criteria notClosed = Criteria.where("endDate").isNull();
 
         Criteria isSubscribed = Criteria.where("rank." + username).exists(true);
         Criteria isPublic = Criteria.where("visibility").is("PUBLIC");
@@ -180,7 +180,7 @@ public class TournamentDAO {
         Criteria privateAndSubscribed = new Criteria().orOperator(isPublic, isSubscribed);
 
         q.addCriteria(tournamentName);
-        q.addCriteria(notClosed);
+        //q.addCriteria(notClosed);
         q.fields().exclude("keyword");
 
         if(role.equals(UserRole.EDUCATOR)){
