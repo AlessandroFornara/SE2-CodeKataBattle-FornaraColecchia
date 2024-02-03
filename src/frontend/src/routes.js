@@ -5,6 +5,7 @@ import HomePage from "@/components/HomePage.vue";
 import Profile from "@/components/Profile.vue";
 import tntINFO from "@/components/tntINFO.vue";
 import battleINFO from "@/components/battleINFO.vue";
+import About from "@/components/About.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -33,6 +34,16 @@ const router = createRouter({
                     path: '/dashboard/profile',
                     name: 'Profile',
                     component: Profile
+                },
+                {
+                    path: '/tntINFO/:name',
+                    name: 'tntINFO',
+                    component: tntINFO
+                },
+                {
+                    path: '/battleINFO/:name',
+                    name: 'battleINFO',
+                    component: battleINFO
                 }
             ]
         },
