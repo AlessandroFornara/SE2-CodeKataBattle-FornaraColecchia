@@ -61,12 +61,12 @@ public enum ServerResponse {
             case EMAIL_OR_USERNAME_NOT_AVAILABLE -> {return "The provided email or username is already registered in our system";}
             case GENERIC_ERROR -> {return "Generic internal server error";}
             case INVALID_CREDENTIALS -> {return "Invalid username or password";}
-            case PRIVATE_TOURNAMENT_CREATED -> {return "The PRIVATE tournament has been created";}
+            case PRIVATE_TOURNAMENT_CREATED -> {return "The PRIVATE tournament has been created, save the following keyword, you won't be able to see it again!";}
             case PUBLIC_TOURNAMENT_CREATED -> {return "The PUBLIC tournament has been created";}
             case REGISTRATION_DEADLINE_NOT_VALID -> {return "Registration deadline not valid";}
             case SUBMISSION_DEADLINE_NOT_VALID -> {return "Submission deadline not valid";}
             case TEAM_NAME_NOT_AVAILABLE -> {return "Team name is not available or user is already in another team or the registration deadline of the battle has expired";}
-            case TEAM_SUCCESSFULLY_CREATED -> {return "Team has been successfully created";}
+            case TEAM_SUCCESSFULLY_CREATED -> {return "Team has been successfully created, save the following keyword, you won't be able to see it again!";}
             case TOURNAMENT_ALREADY_CLOSED -> {return "The tournament has already been closed";}
             case TOURNAMENT_ALREADY_EXISTS -> {return "A tournament with that name already exists";}
             case TOURNAMENT_BATTLES_IN_PROGRESS -> {return "The tournament has still one or more battles in progress";}

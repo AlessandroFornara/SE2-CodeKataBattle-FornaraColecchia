@@ -90,18 +90,21 @@ public class BattleService {
     public Battle getBattleInfo(String name, String username, UserRole role) {
 
         int index = name.indexOf("-");
-        if (role.equals(UserRole.STUDENT)) {
-            if (!tournamentDAO.checkIfSubscribed(username, name.substring(0, index)))
-                return null;
-            if(!battleDAO.checkIfSubscribed(username, name))
-                return null;
-        } else {
-            if (!tournamentDAO.checkIfAdminOrModerator(username, name.substring(0, index)))
-                return null;
+        if(index != -1) {
+            if (role.equals(UserRole.STUDENT)) {
+                if (!tournamentDAO.checkIfSubscribed(username, name.substring(0, index)))
+                    return null;
+                if (!battleDAO.checkIfSubscribed(username, name))
+                    return null;
+            } else {
+                if (!tournamentDAO.checkIfAdminOrModerator(username, name.substring(0, index)))
+                    return null;
+            }
+            Battle battle = battleDAO.getBattleInfo(name);
+            battle.getTeams().sort(Comparator.comparing(Team::getPoints).reversed());
+            return battle;
         }
-        Battle battle = battleDAO.getBattleInfo(name);
-        battle.getTeams().sort(Comparator.comparing(Team::getPoints).reversed());
-        return battle;
+        return null;
     }
 
     /**

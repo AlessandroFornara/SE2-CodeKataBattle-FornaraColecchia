@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -205,6 +204,13 @@ public class BattleDAO {
     }
 
     public boolean evaluate(String battle, String[] usernames, int[] points){
+
+        int intPoint = 0;
+        for(int i = 0; i < points.length; i++){
+            intPoint = intPoint + points[i];
+        }
+        intPoint = intPoint / points.length;
+
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(battle));
         query.addCriteria(Criteria.where("submitDate").lt(new Date()));
@@ -214,7 +220,7 @@ public class BattleDAO {
         Update update = new Update();
         update.filterArray(Criteria.where("t.members").in(usernames));
         update.set("teams.$[t].scores", points);
-        update.set("teams.$[t].points", Arrays.stream(points).average());
+        update.set("teams.$[t].points", intPoint);
 
         UpdateResult updateResult = mongoOperations.updateFirst(query, update, Battle.class);
 
@@ -265,6 +271,14 @@ public class BattleDAO {
         update.set("teams", battle.getTeams());
 
         mongoOperations.updateFirst(query, update, Battle.class, collectionName);
+    }
+
+    public List<Battle> getAllRegistrationBattles(){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("registrationDeadline").gt(new Date()));
+
+        return mongoOperations.find(query, Battle.class, collectionName);
+
     }
 
 }

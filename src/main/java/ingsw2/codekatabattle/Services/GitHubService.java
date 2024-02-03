@@ -3,16 +3,19 @@ package ingsw2.codekatabattle.Services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ingsw2.codekatabattle.DAO.BattleDAO;
+import ingsw2.codekatabattle.Entities.Battle;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Service class for handling GitHub related operations in the Code Kata Battle application.
@@ -31,11 +34,34 @@ public class GitHubService {
     private String username;
     private final BattleDAO battleDAO;
     private final NotificationService notificationService;
+    private final TaskScheduler taskScheduler;
 
     @PostConstruct
     public void printTokenAndUsername(){
         System.out.println(this.accessToken);
         System.out.println(this.username);
+    }
+
+    /**
+     * Schedules creation of GitHub repositories associated to battles already present in the database
+     */
+    @PostConstruct
+    public void scheduleBattles(){
+        List<Battle> battles = battleDAO.getAllRegistrationBattles();
+
+        for (Battle b: battles) {
+            HashMap<String, String> files = new HashMap<>();
+            IntStream.range(0, b.getCodeKata().getInput().size())
+                    .forEach(i -> files.put("input" + (i + 1) + ".txt", b.getCodeKata().getInput().get(i)));
+
+            IntStream.range(0, b.getCodeKata().getOutput().size())
+                    .forEach(i -> files.put("output" + (i + 1) + ".txt", b.getCodeKata().getOutput().get(i)));
+
+            files.put("description.txt", b.getCodeKata().getDescription());
+            files.put("configuration.yaml", b.getCodeKata().getConfigurationFile());
+            taskScheduler.schedule(() -> createRepositoryAndUploadFiles(b.getName(), files), b.getRegistrationDeadline());
+            System.out.println("Scheduled creation of " + b.getName());
+        }
     }
 
     /**
@@ -152,7 +178,6 @@ public class GitHubService {
             for (int j = 0; j < Math.min(educatorOutput.length(), output.length()); j++) {
                 if (output.charAt(j) == educatorOutput.charAt(j)) {
                     totalPoints++;
-                    System.out.println(totalPoints);
                 }
             }
 
