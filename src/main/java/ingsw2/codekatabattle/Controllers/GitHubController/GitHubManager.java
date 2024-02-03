@@ -1,6 +1,5 @@
 package ingsw2.codekatabattle.Controllers.GitHubController;
 
-import ingsw2.codekatabattle.DAO.BattleDAO;
 import ingsw2.codekatabattle.Model.AutomatedEvaluationDTO;
 import ingsw2.codekatabattle.Model.ServerResponse;
 import ingsw2.codekatabattle.Services.BattleService;
@@ -22,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class GitHubManager {
 
     private final BattleService battleService;
-
-    private final BattleDAO battleDAO;
 
     /**
      * Updates the score of a participant in a battle based on automated evaluation results.

@@ -189,7 +189,7 @@ public class TournamentService {
      */
     public Tournament getTournamentInfo(String name, String username, UserRole role){
         Tournament tournament = tournamentDAO.getTournamentInfo(name, username, role);
-        if(tournament.getRank() != null && !tournament.getRank().keySet().isEmpty()) {
+        if(tournament != null && tournament.getRank() != null && !tournament.getRank().keySet().isEmpty()) {
             HashMap<String, Integer> sortedMap = tournament.getRank().entrySet()
                     .stream()
                     .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
