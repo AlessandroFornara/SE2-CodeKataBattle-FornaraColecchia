@@ -45,7 +45,7 @@ export default {
       fetch(endpoint, requestOptions)
           .then(response => {
             if (response.ok) return response.json();
-            //errori
+            else if (response.status === 401) this.$router.push('/login');
           })
           .then(data => {
             let dataArray = Array.from(data);

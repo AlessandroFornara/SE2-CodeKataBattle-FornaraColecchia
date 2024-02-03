@@ -17,7 +17,7 @@
         <table class="table">
           <tbody>
             <tr v-for="(t, index) in OngoingTournaments" :key="index">
-              <th style="">{{t._id}}</th>
+              <th style=""><a @click="this.$router.push('/tntINFO/'+t._id)">{{t._id}}</a></th>
               <td>Created by <em>{{t.admin}}</em></td>
               <td style="text-align: right">{{'Started on '+t.registrationDeadline}}</td>
             </tr>
@@ -32,7 +32,7 @@
           <table class="table">
             <tbody>
             <tr v-for="(t, index) in UpcomingTournaments" :key="index">
-              <th style="">{{t._id}}</th>
+              <th style=""><a @click="this.$router.push('/tntINFO/'+t._id)">{{t._id}}</a></th>
               <td>Created by <em>{{t.admin}}</em></td>
               <td style="text-align: right">{{t.registrationDeadline}}</td>
             </tr>
@@ -43,27 +43,36 @@
 
     </div>
 
-    <div class="row" style="height: 15vh; margin-top: 5%; border-top: 1px solid dimgray">
+    <div class="row" style="display: flex; height: 15vh; margin-top: 5%; border-top: 1px solid dimgray">
       <div class="row" id="keyword" style="display: flex; justify-content: space-between"
            v-if="this.role==='STUDENT'"
       >
-        <h4 style="flex: 1; align-self: center">Enter a private Tournament:</h4>
-        <div class="col" style="display: flex">
-          <div class="input-group mt-5" style="flex: 1; height: 40%">
+        <div class="row mt-4" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
+          <h4 style="max-width: fit-content">Enter a private Tournament:</h4>
+
+          <div class="input-group" style="flex: 1; height: 40%; max-width: 40%">
             <input type="text" class="form-control" placeholder="Insert a keyword" v-model="keywordDTO">
-            <button class="btn btn-outline-secondary" type="button" @click.prevent="subscribePrivateTnt()">Submit</button>
+            <button class="btn btn-outline-secondary"
+                    type="button"
+                    :disabled="!keywordDTO"
+                    @click.prevent="subscribePrivateTnt()"
+            >Submit</button>
           </div>
-          <div class="alert alert-dismissable alert-success mt-3"
-               v-if="successMessage!==''"
-          >
-            {{successMessage}}
-          </div>
-          <div class="alert alert-dismissable alert-danger mt-3"
-               v-if="errorMessage!==''"
-          >
-            {{errorMessage}}
+
+          <div class="row mt-3" style="display: flex">
+            <div class="alert alert-dismissable alert-success mt-3"
+                 v-if="successMessage!==''"
+            >
+              {{successMessage}}
+            </div>
+            <div class="alert alert-dismissable alert-danger mt-3"
+                 v-if="errorMessage!==''"
+            >
+              {{errorMessage}}
+            </div>
           </div>
         </div>
+
       </div>
 
       <div class="row" id="createT" style="display: flex; justify-content: space-between"
@@ -108,6 +117,7 @@
             </div>
             <button class="btn btn-primary"
                     style="flex: 1; max-width: fit-content"
+                    :disabled="!(nameDTO&&regDeadlineDTO)"
                     @click="createT()"
             >Create</button>
           </div>
@@ -140,9 +150,42 @@ export default {
   created() {
     this.username = localStorage.getItem("username");
     this.role = localStorage.getItem("role");
+    this.fetchT();
     this.minDays = this.setDisabledDays();
   },
   methods: {
+    fetchT() {
+      let role = localStorage.getItem('role');
+      let endpoint = role==='EDUCATOR' ? '/api/eduTnt/homePageTnt' : '/api/studTnt/homePageTnt';
+      let requestOptions = {
+        method: 'GET',
+        headers: {'Authorization': 'Bearer '+localStorage.getItem('token')}
+      }
+
+      fetch(endpoint, requestOptions)
+          .then(response => {
+            if (response.ok) return response.json();
+            else if (response.status === 401) this.$router.push('/login');
+          })
+          .then(data => {
+            this.OngoingTournaments = [];
+            this.UpcomingTournaments = [];
+            let dataArray = Array.from(data);
+            dataArray.forEach(t => this.dispatchT(t))
+          })
+
+    },
+    dispatchT(t) {
+      let now = new Date();
+      let reg = new Date(t.registrationDeadline);
+
+      t.registrationDeadline = reg.toLocaleString('it-IT', {dateStyle: "medium", timeStyle: "short"});
+
+      if (reg > now)
+        this.UpcomingTournaments.push(t);
+      else
+        this.OngoingTournaments.push(t);
+    },
     createT() {
       let endpoint = '/api/eduTnt/create';
       let requestOptions = {
@@ -150,13 +193,12 @@ export default {
         headers: {'Authorization': 'Bearer '+localStorage.getItem('token'), 'Content-Type': 'application/json'},
         body: JSON.stringify({
           name: this.nameDTO,
-          registrationDeadline: this.regDeadlineDTO,
-          isPublic: this.visibility==='public'
+          registrationDeadline: new Date(this.regDeadlineDTO),
+          publicTournament: this.visibility==='public'
 
         })
       };
 
-      console.log(endpoint, requestOptions)
       fetch(endpoint, requestOptions)
           .then(response => {
             if (response.status === 200) {
@@ -164,8 +206,10 @@ export default {
                 this.errorMessage = '';
                 if (this.visibility==='public') this.successMessage = data + ': '+ this.nameDTO;
                 else this.successMessage = data;
+                this.fetchT();
               });
-            } else {
+            } else if (response.status === 401) this.$router.push('/login');
+            else {
               return response.text().then(error => {
                 this.successMessage = '';
                 this.errorMessage = error;
@@ -184,7 +228,7 @@ export default {
         headers: {'Authorization': 'Bearer '+localStorage.getItem('token'), 'Content-Type': 'application/json'},
         body: JSON.stringify({
           nameOrKeyword: this.keywordDTO,
-          isPublic: this.visibility==='public'
+          tournamentPublic: this.visibility==='public'
         })
       };
 
@@ -195,7 +239,8 @@ export default {
                 this.errorMessage = '';
                 this.successMessage = data;
               });
-            } else {
+            }else if (response.status === 401) this.$router.push('/login');
+            else {
               return response.text().then(error => {
                 this.successMessage = '';
                 this.errorMessage = error;

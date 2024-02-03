@@ -110,7 +110,7 @@ export default {
       this.$router.push('/dashboard/home')
     },
     gotoAbout() {
-      this.$router.push('/dashboard/home')
+      this.$router.push('/dashboard/about')
     },
     gotoProfile(){
       this.$router.push('/dashboard/profile')

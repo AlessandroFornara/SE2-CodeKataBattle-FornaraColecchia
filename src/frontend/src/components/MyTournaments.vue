@@ -13,7 +13,7 @@
         <a
             @click="this.$router.push('/tntINFO/'+t._id)"
         ><strong>{{t._id}}</strong></a>
-        <span class="visibility" style="color: dimgray">{{t.visibility}}</span>
+        <span class="visibility" style="color: dimgray">{{t.endDate ? 'CLOSED' : t.visibility}}</span>
       </li>
     </ul>
 
@@ -42,7 +42,10 @@ export default {
         headers: {'Authorization': 'Bearer '+localStorage.getItem('token')}
       }
       fetch(endpoint, requestOptions)
-          .then(response => response.json())
+          .then(response => {
+            if (response.ok) return response.json();
+            else if (response.status === 401) this.$router.push('/login');
+          })
           .then(data => {
             let dataArray = Array.from(data);
             dataArray.forEach(t => {

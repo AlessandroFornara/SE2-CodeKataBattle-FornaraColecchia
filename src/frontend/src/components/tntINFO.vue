@@ -43,7 +43,8 @@
             <div class="col" style="display: flex; flex-direction: column; justify-content: center">
               <p>STATUS: <strong>{{status}}</strong></p>
               <p v-if="status==='ONGOING'">Started on: <strong>{{regDeadline}}</strong></p>
-              <p v-else>Register before: <strong>{{regDeadline}}</strong></p>
+              <p v-if="status==='REGISTRATION'">Register before: <strong>{{regDeadline}}</strong></p>
+              <p v-if="status==='CLOSED'">Closed on: <strong>{{regDeadline}}</strong></p>
             </div>
           </div>
 
@@ -60,6 +61,7 @@
               >Promote</button>
             </div>
             <p class="text-danger" v-if="errorPromote">{{errorPromote}}</p>
+            <p class="text-success" v-if="successPromote">{{successPromote}}</p>
           </div>
 
         </div>
@@ -98,7 +100,7 @@
             <div v-if="battle.status==='CONSOLIDATION'||battle.status==='CLOSED'">
               <p>Finished on: <strong>{{battle.sub}}</strong></p>
               <p v-if="battle.status==='CONSOLIDATION'"><em>Evaluation in progress</em></p>
-              <p v-if="battle.status==='CLOSED'"><em>Closed</em></p>
+              <p v-if="battle.status==='CLOSED'"><em>{{ 'Closed on: ' + battle.end}}</em></p>
             </div>
             <div v-if="battle.status==='REGISTRATION'">
               <p>Register before: <strong>{{battle.reg}}</strong></p>
@@ -112,7 +114,7 @@
                @click="this.$router.push('/battleINFO/'+this.tntName+'-'+battle.name)"
             >See Info</a>
 
-            <div v-if="battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&battle.joining" style="display: flex; justify-content: space-between">
+            <div v-if="subButton.disabled&&battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&battle.joining" style="display: flex; justify-content: space-between">
               <button class="btn btn-secondary btn-sm" style="flex: 1; max-width: fit-content" @click.prevent="battle.joining=false">Form Team</button>
               <div style="flex: 1; margin-left: 5%">
                 <div class="input-group" style="flex: 1">
@@ -128,7 +130,7 @@
               </div>
             </div>
 
-            <div v-if="battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&!battle.joining" style="display: flex; justify-content: space-between">
+            <div v-if="subButton.disabled&&battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&!battle.joining" style="display: flex; justify-content: space-between">
               <div style="flex: 1; margin-left: 5%">
                 <div class="input-group" style="flex: 1">
                   <button class="btn btn-secondary btn-sm"
@@ -147,8 +149,6 @@
           </div>
           <div>
             <p
-                class="text-warning text-center"
-                role="alert"
                 v-if="battle.error!==''"
                 style="text-wrap: normal"
             >
@@ -219,7 +219,12 @@
             </p>
           </div>
           <div class="container" style="display: flex; flex-direction: row; justify-content:right">
-            <button class="btn btn-primary mt-3" @click="createBattle">Create battle</button>
+            <button class="btn btn-primary mt-3"
+                    :disabled="!(battleCreationDTO.name&&battleCreationDTO.submissionDeadline&&
+                                  battleCreationDTO.registrationDeadline&&inputFiles&&outputFiles&&
+                                  configFile&&descriptionFile&&inputFiles.length>=outputFiles.length)"
+                    @click="createBattle"
+            >Create battle</button>
           </div>
         </div>
       </div>
@@ -254,8 +259,8 @@ export default {
       newModerator: '',
       students: [],
       battles: [],
-      inputFiles: [],
-      outputFiles: [],
+      inputFiles: null,
+      outputFiles: null,
       descriptionFile: null,
       configFile: null,
       battleCreationDTO: {
@@ -275,6 +280,7 @@ export default {
       errorNewBattle: '',
       successNewBattle: '',
       errorPromote: '',
+      successPromote: '',
       statusCODE: 0
     }
   },
@@ -310,7 +316,11 @@ export default {
             this.visibility = data.visibility;
             this.regDeadline = this.dateToLocaleString(data.registrationDeadline);
 
-            if ((new Date(data.registrationDeadline))>(new Date())) this.status = 'REGISTRATION';
+            if (data.endDate!==null) {
+              this.status = 'CLOSED';
+              this.regDeadline = this.dateToLocaleString(data.endDate);
+            }
+            else if ((new Date(data.registrationDeadline))>(new Date())) this.status = 'REGISTRATION';
             else this.status = 'ONGOING';
 
             this.students = [];
@@ -446,6 +456,8 @@ export default {
         this.errorNewBattle = 'Error reading file: '+e;
       }
 
+      this.battleCreationDTO.registrationDeadline = new Date(this.battleCreationDTO.registrationDeadline);
+      this.battleCreationDTO.submissionDeadline = new Date(this.battleCreationDTO.submissionDeadline);
       this.battleCreationDTO.codeKata.input = inputContents;
       this.battleCreationDTO.codeKata.output = outputContents;
       this.battleCreationDTO.codeKata.description = description;
@@ -459,7 +471,6 @@ export default {
         body: JSON.stringify(this.battleCreationDTO)
       }
 
-      console.log(requestOptions.body, endpoint)
       fetch(endpoint,requestOptions)
           .then(response => {
             this.statusCODE = response.status;
@@ -470,6 +481,20 @@ export default {
             else if (this.statusCODE === 200) {
               this.errorNewBattle = '';
               this.successNewBattle = data;
+              this.inputFiles = null;
+              this.outputFiles = null;
+              this.descriptionFile = null;
+              this.configFile = null;
+              this.battleCreationDTO.name = '';
+              this.battleCreationDTO.tournamentName = '';
+              this.battleCreationDTO.codeKata.input = [];
+              this.battleCreationDTO.codeKata.output = [];
+              this.battleCreationDTO.codeKata.configurationFile = '';
+              this.battleCreationDTO.codeKata.description = '';
+              this.battleCreationDTO.minPlayers = 1;
+              this.battleCreationDTO.maxPlayers = 1;
+              this.battleCreationDTO.registrationDeadline = null;
+              this.battleCreationDTO.submissionDeadline = null;
               this.fetchBattles();
             }
             else {
@@ -495,10 +520,10 @@ export default {
           tournamentPublic: this.visibility==='PUBLIC'
         })
       }
-      console.log(requestOptions)
       fetch(endpoint,requestOptions)
           .then(response => {
             if (response.ok) this.subButton.disabled = true;
+            if (response.status === 401) this.$router.push('/login');
             this.fetchINFO();
           })
     },
@@ -512,13 +537,11 @@ export default {
           battleName: this.tntName+'-'+b.name
         })
         }
-      console.log(requestOptions.body,endpoint);
       fetch(endpoint,requestOptions)
           .then(response => {
-            if (response.ok) {
-              b.subscribed = true;
-            }
-            else return response.text().then(error => b.error=error);
+            if (response.ok) b.subscribed = true;
+            if (response.status === 401) this.$router.push('/login');
+            return response.text().then(error => b.error=error);
           })
 
     },
@@ -532,13 +555,11 @@ export default {
           battleName: this.tntName+'-'+b.name
         })
       }
-      console.log(requestOptions.body,endpoint);
       fetch(endpoint,requestOptions)
           .then(response => {
-            if (response.ok) {
-              b.subscribed = true;
-            }
-            else return response.text().then(error => b.error=error);
+            if (response.ok) b.subscribed = true;
+            if (response.status === 401) this.$router.push('/login');
+            return response.text().then(error => b.error=error);
           })
 
     },
@@ -555,9 +576,18 @@ export default {
 
       fetch(endpoint,requestOptions)
           .then(response =>{
-            if (response.ok) this.fetchINFO();
+            if (response.ok) {
+              this.fetchINFO();
+              return response.text().then(msg => {
+                this.errorPromote = '';
+                this.successPromote = msg;
+              })
+            }
             else if (response.status === 401) this.$router.push('/login');
-            else return response.text().then(error => this.errorPromote = error)
+            else return response.text().then(error => {
+                this.successPromote = '';
+                this.errorPromote = error;
+              })
           })
 
     },

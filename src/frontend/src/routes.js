@@ -44,6 +44,11 @@ const router = createRouter({
                     path: '/battleINFO/:name',
                     name: 'battleINFO',
                     component: battleINFO
+                },
+                {
+                    path: '/dashboard/about',
+                    name: 'About',
+                    component: About
                 }
             ]
         },

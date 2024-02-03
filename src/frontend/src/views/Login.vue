@@ -1,5 +1,10 @@
 <template>
-  <div class="container d-flex align-items-center justify-content-center">
+  <div class="container d-flex align-items-center justify-content-center"
+       style="height: 100vh; width: 50%; background-color: mediumseagreen;border: 2px solid green; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);"
+  >
+    <img src="@/assets/logo.png" width="1000" alt="CKB">
+  </div>
+  <div class="container d-flex align-items-center justify-content-center" style="width: 50%">
 
     <form>
 

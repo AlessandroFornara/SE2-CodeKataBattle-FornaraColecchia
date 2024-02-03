@@ -91,7 +91,7 @@
               <button class="btn btn-secondary" @click.prevent="evaluatedTeam.evaluating=false">Cancel</button>
               <button class="btn btn-primary"
                       @click.prevent="evaluate"
-                      :disabled="this.status==='CONSOLIDATION'"
+                      :disabled="this.status!=='CONSOLIDATION'"
               >Evaluate</button>
             </div>
           </div>
