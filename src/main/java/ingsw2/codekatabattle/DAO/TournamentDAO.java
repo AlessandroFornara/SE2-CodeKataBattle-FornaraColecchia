@@ -155,9 +155,9 @@ public class TournamentDAO {
 
         Query q =new Query();
         Criteria isSubscribed = Criteria.where("rank." + username).exists(true);
-        Criteria notClosed = Criteria.where("endDate").isNull();
+        //Criteria notClosed = Criteria.where("endDate").isNull();
 
-        q.addCriteria(new Criteria().andOperator(isSubscribed, notClosed));
+        q.addCriteria(isSubscribed);
         q.fields().include("_id");
         q.fields().include("visibility");
         q.fields().include("endDate");
