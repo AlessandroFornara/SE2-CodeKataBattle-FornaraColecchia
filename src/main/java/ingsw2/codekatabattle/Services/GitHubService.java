@@ -170,8 +170,8 @@ public class GitHubService {
         int maxPoints = 0;
 
         for (int i = 0; i < outputs.size(); i++) {
-            String output = outputs.get(i);
-            String educatorOutput = educatorOutputs.get(i);
+            String output = normalizeLineEndings(outputs.get(i));
+            String educatorOutput = normalizeLineEndings(educatorOutputs.get(i));
 
             maxPoints += Math.max(educatorOutput.length(), output.length());
 
@@ -198,6 +198,10 @@ public class GitHubService {
         System.out.println(totalPoints);
 
         return Math.min(totalPoints, 100);
+    }
+
+    private String normalizeLineEndings(String text) {
+        return text.replace("\r\n", "\n").replace("\r", "\n");
     }
 
 }

@@ -1,0 +1,56 @@
+After the registration deadline of a battle has been reached, you will find the code kata in a public repository following the link received in the email or by searching the tournamentName-battleName on GitHub.
+
+1. First thing you'll need to do is fork the repository (or you can simply use the same account the repo was created on since it's the one you have provided).
+
+2. Go to settings -> Secrets and variables -> Actions and create two new REPOSITORY SECRETS: 
+-BATTLE: copy and paste the name of the repository created by the server (it should be tournamentName-battleName)
+-KEYWORD: copy and paste the keyword associated to your team in the battle (which was provided at team's creation)
+
+3. Create a folder called ".github/workflows" and move the YAML file in it.
+
+4. Generate the link associated to your 8080 port using Ngrok like explained in the ITD file (Usage section)
+
+5. Copy and paste the link in the YAML file 
+Example (taken from one of the uploaded examples in our repository):
+curl -v -X POST -H "Content-Type: application/json" -d "$JSON_ARRAY" <LINK>/api/GitHub/automatedEvaluation 
+
+6. Create your java file (outside of the .github folder) and implement the solution (the file must have the same name written in the YAML file under the compile and run jobs).
+
+Now, every time you push code on the forked repository, the code will be run and the result will be saved in a txt file, which is going to be sent along with the secrets to the 8080 port of your device (that leads to the CKB server) for automated evaluation.
+
+If you want to create your own code kata, you can use one of the configuration files provided in the examples (remember to change the name of the java file with the one you're going to use)
+
+      - name: Compile Java code
+        run: javac <program.java>
+
+      - name: Run Java code for each input file and save outputs
+        run: |
+          for file in input*.txt; do
+            java <program> "$file" >"output_${file}"
+          done
+          echo "output files:"
+          ls -l output_*.txt
+          cat output_*.txt
+
+NB: It's not mandatory to use a java file, the YAML can be changed to compile and execute any language, but the format of the JSON array sent to the server must remain the same.
+
+- name: Sending outputs to server as JSON
+        env:
+          KEYWORD: ${{ secrets.KEYWORD }}
+          BATTLE: ${{ secrets.BATTLE }}
+        run: |
+          declare -a output_array=()
+          for file in output_*.txt; do
+            content=$(<"$file")
+            output_array+=("$content")
+          done
+          
+          JSON_ARRAY=$(jq -n \
+            --arg kw "$KEYWORD" \
+            --arg bt "$BATTLE" \
+            --argjson out "$(jq -nR --slurp --raw-input '$ARGS.positional' --args "${output_array[@]}")" \
+            '{keyword: $kw, battle: $bt, outputs: $out}')
+          echo "created JSON:"
+          echo "$JSON_ARRAY"
+
+          curl -v -X POST -H "Content-Type: application/json" -d "$JSON_ARRAY" <LINK>/api/GitHub/automatedEvaluation

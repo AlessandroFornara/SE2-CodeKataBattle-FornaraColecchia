@@ -188,7 +188,7 @@ public class BattleControllersTest {
                         .header("Authorization", "Bearer " + this.studentToken1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
-                .andExpect(content().string(containsString("Team has been successfully created")))
+                .andExpect(content().string(containsString("Team has been successfully created, save the following keyword, you won't be able to see it again!")))
                 .andExpect(status().isOk())
                 .andReturn();
 

@@ -1,0 +1,55 @@
+name: Send HTTP request to server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  send-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Compile Java code
+        run: javac PalindromeChecker.java
+
+      - name: Run Java code for each input file and save outputs
+        run: |
+          for file in input*.txt; do
+            java PalindromeChecker "$file" >"output_${file}"
+          done
+          echo "output files:"
+          ls -l output_*.txt
+          cat output_*.txt
+
+      - name: Sending outputs to server as JSON
+        env:
+          KEYWORD: ${{ secrets.KEYWORD }}
+          BATTLE: ${{ secrets.BATTLE }}
+        run: |
+          declare -a output_array=()
+          for file in output_*.txt; do
+            content=$(<"$file")
+            output_array+=("$content")
+          done
+          
+          JSON_ARRAY=$(jq -n \
+            --arg kw "$KEYWORD" \
+            --arg bt "$BATTLE" \
+            --argjson out "$(jq -nR --slurp --raw-input '$ARGS.positional' --args "${output_array[@]}")" \
+            '{keyword: $kw, battle: $bt, outputs: $out}')
+          echo "created JSON:"
+          echo "$JSON_ARRAY"
+
+          curl -v -X POST -H "Content-Type: application/json" -d "$JSON_ARRAY" https://4d4f-2-36-179-149.ngrok-free.app/api/GitHub/automatedEvaluation

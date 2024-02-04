@@ -117,7 +117,7 @@ public class TournamentManagementControllerTest {
                         .header("Authorization", "Bearer "+ this.token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
-                .andExpect(content().string(containsString("The PRIVATE tournament has been created. KEYWORD: ")))
+                .andExpect(content().string(containsString("The PRIVATE tournament has been created, save the following keyword, you won't be able to see it again!. KEYWORD: ")))
                 .andExpect(status().isOk());
     }
 
