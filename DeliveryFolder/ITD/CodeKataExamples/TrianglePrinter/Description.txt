@@ -1,0 +1,28 @@
+Isosceles Triangle Printer
+
+Objective:
+Create a Java program that reads the height of an isosceles triangle from a file and prints the triangle to the console. An isosceles triangle is symmetric with equal sides, and its shape in the console output should reflect this symmetry.
+
+Requirements:
+
+Input: The program should accept a single command-line argument, which is the path to an input file. This file contains a single integer on the first line, representing the height of the isosceles triangle.
+
+Triangle Printing:
+        The base of the triangle should be 2 * height - 1 characters wide.
+        Each row above the base decreases in width by 2 characters, creating a symmetric shape.
+        Spaces should be used to align the triangle symmetrically about a vertical axis.
+
+Output: The program should print the triangle to the console, with each row of the triangle on a new line. The triangle should be centered relative to its base, using spaces on each side as needed for alignment.
+
+Example:
+
+If the input file (input.txt) contains:
+
+4
+
+The expected console output should be:
+
+   *
+  ***
+ *****
+*******

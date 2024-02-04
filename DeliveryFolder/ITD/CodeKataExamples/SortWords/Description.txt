@@ -1,0 +1,28 @@
+Alphabetical Word Sorter
+
+Objective:
+Develop a Java program that reads a list of words from a file (specified as a command-line argument) and prints these words in alphabetical order. Each word in the file is on a new line.
+
+Requirements:
+
+Input: The program should accept the filename as a command-line argument. The specified file will contain one word per line. Words can consist of any character and are case-sensitive.
+
+Sorting: The words should be sorted in alphabetical order. Consider the sorting to be case-sensitive, meaning capital letters come before lowercase letters (e.g., "Apple" would come before "apple").
+
+Output: Print the sorted list of words to the console, with each word on a new line in its original case.
+
+Example:
+
+Given an input file (words.txt) containing:
+
+Banana
+apple
+Orange
+grape
+
+The expected console output should be:
+
+Banana
+Orange
+apple
+grape

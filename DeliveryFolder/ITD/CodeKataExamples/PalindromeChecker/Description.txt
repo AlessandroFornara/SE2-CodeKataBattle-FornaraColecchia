@@ -1,0 +1,33 @@
+Palindrome Checker
+
+Objective:
+Write a Java program that reads a list of strings from a file and determines whether each string is a palindrome. A palindrome is a word, phrase, number, or other sequences of characters that reads the same forward and backward, ignoring cases, spaces, and punctuation.
+
+Requirements:
+
+Input File: Your program should read from a file named input.txt. This file will contain one string per line. The contents of the file could range from single words to complete sentences.
+
+Normalization: Before checking if a string is a palindrome, you must normalize the string. This involves:
+-Removing all non-alphanumeric characters (e.g., spaces, punctuation).
+-Converting all letters to lowercase.
+
+Palindrome Check: 
+Implement a method to check if a given string is a palindrome. This method should compare characters in the string from the beginning and the end, moving towards the center. If all corresponding characters match, the string is a palindrome.
+
+Output: For each string read from the file, print the original string followed by : true if it is a palindrome or : false if it is not. Each result should be printed on a new line.
+
+Example:
+
+Input file (input.txt):
+
+Madam
+racecar
+A man, a plan, a canal: Panama
+hello
+
+Expected output:
+
+Madam: true
+racecar: true
+A man, a plan, a canal: Panama: true
+hello: false
