@@ -61,10 +61,10 @@ public class BattleDAO {
     public List<MyBattlesDTO> getBattlesByEducator(String username){
 
         Query q = new Query();
-        Criteria notClosed = Criteria.where("endDate").isNull();
+        //Criteria notClosed = Criteria.where("endDate").isNull();
         Criteria creator = Criteria.where("creator").is(username);
 
-        q.addCriteria(new Criteria().andOperator(notClosed, creator));
+        q.addCriteria(creator);
         q.fields().include("_id");
         q.fields().include("registrationDeadline");
         q.fields().include("submitDate");
@@ -76,10 +76,10 @@ public class BattleDAO {
     public List<MyBattlesDTO> getBattlesByStudent(String username){
 
         Query q = new Query();
-        Criteria notClosed = Criteria.where("endDate").isNull();
+        //Criteria notClosed = Criteria.where("endDate").isNull();
         Criteria team = Criteria.where("teams.members").in(username);
 
-        q.addCriteria(new Criteria().andOperator(notClosed, team));
+        q.addCriteria(team);
         q.fields().include("_id");
         q.fields().include("registrationDeadline");
         q.fields().include("submitDate");
