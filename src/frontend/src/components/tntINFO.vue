@@ -114,7 +114,7 @@
                @click="this.$router.push('/battleINFO/'+this.tntName+'-'+battle.name)"
             >See Info</a>
 
-            <div v-if="subButton.disabled&&battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&battle.joining" style="display: flex; justify-content: space-between">
+            <div v-if="checkIfSubscribed(this.username)&&battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&battle.joining" style="display: flex; justify-content: space-between">
               <button class="btn btn-secondary btn-sm" style="flex: 1; max-width: fit-content" @click.prevent="battle.joining=false">Form Team</button>
               <div style="flex: 1; margin-left: 5%">
                 <div class="input-group" style="flex: 1">
@@ -130,7 +130,7 @@
               </div>
             </div>
 
-            <div v-if="subButton.disabled&&battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&!battle.joining" style="display: flex; justify-content: space-between">
+            <div v-if="checkIfSubscribed(this.username)&&battle.status==='REGISTRATION'&&!battle.subscribed&&role==='STUDENT'&&!battle.joining" style="display: flex; justify-content: space-between">
               <div style="flex: 1; margin-left: 5%">
                 <div class="input-group" style="flex: 1">
                   <button class="btn btn-secondary btn-sm"
@@ -626,7 +626,7 @@ export default {
       let now = new Date();
       let year = now.getFullYear();
       let month = (now.getMonth() + 1).toString().padStart(2, '0');
-      let day = (now.getDate()+1).toString().padStart(2, '0');
+      let day = now.getDate().toString().padStart(2, '0');
       let hours = now.getHours().toString().padStart(2, '0');
       let minutes = now.getMinutes().toString().padStart(2, '0');
 
