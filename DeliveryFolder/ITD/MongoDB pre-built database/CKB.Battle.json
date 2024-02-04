@@ -1,0 +1,235 @@
+[{
+  "_id": "PublicTournament1-SortWord",
+  "creator": "AlessandroF",
+  "codeKata": {
+    "input": [
+      "cfvd\r\nvce\r\nqqwe\r\nasdd\r\nxczx\r\ngdfh\r\naaaa\r\naabbaa\r\ncdssd\r\ncsdc\r\nzx<\r\ngbg\r\nbnfgn\r\nnfgn\r\nnfg\r\nnfg\r\nn\r\nfgn\r\nfgmt",
+      "cwef\r\nref\r\nv\r\nerv\r\nasfd\r\nerhb\r\naa\r\nsdsd\r\nbdf\r\nbdf\r\nsadg\r\nfdsfgsd\r\ndsg"
+    ],
+    "output": [
+      "aaaa\r\naabbaa\r\nasdd\r\nbnfgn\r\ncdssd\r\ncfvd\r\ncsdc\r\nfgmt\r\nfgn\r\ngbg\r\ngdfh\r\nn\r\nnfg\r\nnfg\r\nnfgn\r\nqqwe\r\nvce\r\nxczx\r\nzx<",
+      "aa\r\nasfd\r\nbdf\r\nbdf\r\ncwef\r\ndsg\r\nerhb\r\nerv\r\nfdsfgsd\r\nref\r\nsadg\r\nsdsd\r\nv"
+    ],
+    "description": "Alphabetical Word Sorter\r\n\r\nObjective:\r\nDevelop a Java program that reads a list of words from a file (specified as a command-line argument) and prints these words in alphabetical order. Each word in the file is on a new line.\r\n\r\nRequirements:\r\n\r\nInput: The program should accept the filename as a command-line argument. The specified file will contain one word per line. Words can consist of any character and are case-sensitive.\r\n\r\nSorting: The words should be sorted in alphabetical order. Consider the sorting to be case-sensitive, meaning capital letters come before lowercase letters (e.g., \"Apple\" would come before \"apple\").\r\n\r\nOutput: Print the sorted list of words to the console, with each word on a new line in its original case.\r\n\r\nExample:\r\n\r\nGiven an input file (words.txt) containing:\r\n\r\nBanana\r\napple\r\nOrange\r\ngrape\r\n\r\nThe expected console output should be:\r\n\r\nBanana\r\nOrange\r\napple\r\ngrape\r\n",
+    "configurationFile": "name: Send HTTP request to server\r\n\r\non:\r\n  push:\r\n    branches: [ main ]\r\n\r\njobs:\r\n  send-request:\r\n    runs-on: ubuntu-latest\r\n\r\n    steps:\r\n      - name: Set up Git repository\r\n        uses: actions/checkout@v2\r\n\r\n      - name: Set up Java\r\n        uses: actions/setup-java@v2\r\n        with:\r\n          distribution: 'temurin'\r\n          java-version: '11'\r\n\r\n      - name: Install jq\r\n        run: sudo apt-get install -y jq\r\n\r\n      - name: Compile Java code\r\n        run: javac SortWords.java\r\n\r\n      - name: Run Java code for each input file and save outputs\r\n        run: |\r\n          for file in input*.txt; do\r\n            java SortWords \"$file\" >\"output_${file}\"\r\n          done\r\n          echo \"output files:\"\r\n          ls -l output_*.txt\r\n          cat output_*.txt\r\n\r\n      - name: Sending outputs to server as JSON\r\n        env:\r\n          KEYWORD: ${{ secrets.KEYWORD }}\r\n          BATTLE: ${{ secrets.BATTLE }}\r\n        run: |\r\n          declare -a output_array=()\r\n          for file in output_*.txt; do\r\n            content=$(<\"$file\")\r\n            output_array+=(\"$content\")\r\n          done\r\n          \r\n          JSON_ARRAY=$(jq -n \\\r\n            --arg kw \"$KEYWORD\" \\\r\n            --arg bt \"$BATTLE\" \\\r\n            --argjson out \"$(jq -nR --slurp --raw-input '$ARGS.positional' --args \"${output_array[@]}\")\" \\\r\n            '{keyword: $kw, battle: $bt, outputs: $out}')\r\n          echo \"created JSON:\"\r\n          echo \"$JSON_ARRAY\"\r\n\r\n          curl -v -X POST -H \"Content-Type: application/json\" -d \"$JSON_ARRAY\" https://4d4f-2-36-179-149.ngrok-free.app/api/GitHub/automatedEvaluation"
+  },
+  "teams": [
+    {
+      "name": "Team",
+      "members": [
+        "Colsim"
+      ],
+      "scores": [
+        84
+      ],
+      "keyword": ".T*5=sf4",
+      "points": 84
+    },
+    {
+      "name": "Team2",
+      "members": [
+        "Student1"
+      ],
+      "scores": [
+        71
+      ],
+      "keyword": "U9qR-yLc",
+      "points": 71,
+      "_class": "ingsw2.codekatabattle.Entities.Team"
+    }
+  ],
+  "registrationDeadline": {
+    "$date": "2024-02-03T19:00:00.000Z"
+  },
+  "submitDate": {
+    "$date": "2024-02-04T18:07:00.000Z"
+  },
+  "maxPlayers": 2,
+  "minPlayers": 1,
+  "_class": "ingsw2.codekatabattle.Entities.Battle",
+  "repositoryLink": "https://github.com/AlessandroFornara/PublicTournament1-SortWord"
+},
+{
+  "_id": "PublicTournament2-TrianglePrinter",
+  "creator": "AlessandroF",
+  "codeKata": {
+    "input": [
+      "7",
+      "10"
+    ],
+    "output": [
+      "      *\r\n     ***\r\n    *****\r\n   *******\r\n  *********\r\n ***********\r\n*************",
+      "         *\r\n        ***\r\n       *****\r\n      *******\r\n     *********\r\n    ***********\r\n   *************\r\n  ***************\r\n *****************\r\n*******************"
+    ],
+    "description": "Isosceles Triangle Printer\n\nObjective:\nCreate a Java program that reads the height of an isosceles triangle from a file and prints the triangle to the console. An isosceles triangle is symmetric with equal sides, and its shape in the console output should reflect this symmetry.\n\nRequirements:\n\nInput: The program should accept a single command-line argument, which is the path to an input file. This file contains a single integer on the first line, representing the height of the isosceles triangle.\n\nTriangle Printing:\n        The base of the triangle should be 2 * height - 1 characters wide.\n        Each row above the base decreases in width by 2 characters, creating a symmetric shape.\n        Spaces should be used to align the triangle symmetrically about a vertical axis.\n\nOutput: The program should print the triangle to the console, with each row of the triangle on a new line. The triangle should be centered relative to its base, using spaces on each side as needed for alignment.\n\nExample:\n\nIf the input file (input.txt) contains:\n\n4\n\nThe expected console output should be:\n\n   *\n  ***\n *****\n*******",
+    "configurationFile": "name: Send HTTP request to server\r\n\r\non:\r\n  push:\r\n    branches: [ main ]\r\n\r\njobs:\r\n  send-request:\r\n    runs-on: ubuntu-latest\r\n\r\n    steps:\r\n      - name: Set up Git repository\r\n        uses: actions/checkout@v2\r\n\r\n      - name: Set up Java\r\n        uses: actions/setup-java@v2\r\n        with:\r\n          distribution: 'temurin'\r\n          java-version: '11'\r\n\r\n      - name: Install jq\r\n        run: sudo apt-get install -y jq\r\n\r\n      - name: Compile Java code\r\n        run: javac TrianglePrinter.java\r\n\r\n      - name: Run Java code for each input file and save outputs\r\n        run: |\r\n          for file in input*.txt; do\r\n            java TrianglePrinter \"$file\" >\"output_${file}\"\r\n          done\r\n          echo \"output files:\"\r\n          ls -l output_*.txt\r\n          cat output_*.txt\r\n\r\n      - name: Sending outputs to server as JSON\r\n        env:\r\n          KEYWORD: ${{ secrets.KEYWORD }}\r\n          BATTLE: ${{ secrets.BATTLE }}\r\n        run: |\r\n          declare -a output_array=()\r\n          for file in output_*.txt; do\r\n            content=$(<\"$file\")\r\n            output_array+=(\"$content\")\r\n          done\r\n          \r\n          JSON_ARRAY=$(jq -n \\\r\n            --arg kw \"$KEYWORD\" \\\r\n            --arg bt \"$BATTLE\" \\\r\n            --argjson out \"$(jq -nR --slurp --raw-input '$ARGS.positional' --args \"${output_array[@]}\")\" \\\r\n            '{keyword: $kw, battle: $bt, outputs: $out}')\r\n          echo \"created JSON:\"\r\n          echo \"$JSON_ARRAY\"\r\n\r\n          curl -v -X POST -H \"Content-Type: application/json\" -d \"$JSON_ARRAY\" https://4d4f-2-36-179-149.ngrok-free.app/api/GitHub/automatedEvaluation"
+  },
+  "teams": [
+    {
+      "name": "Team",
+      "members": [
+        "Colsim"
+      ],
+      "scores": [
+        98
+      ],
+      "keyword": "u@ba>JL!",
+      "points": 98
+    }
+  ],
+  "registrationDeadline": {
+    "$date": "2024-02-03T22:41:00.000Z"
+  },
+  "submitDate": {
+    "$date": "2024-02-04T12:05:00.000Z"
+  },
+  "maxPlayers": 1,
+  "minPlayers": 1,
+  "_class": "ingsw2.codekatabattle.Entities.Battle",
+  "repositoryLink": "https://github.com/AlessandroFornara/PublicTournament2-TrianglePrinter",
+  "endDate": {
+    "$date": "2024-02-04T14:07:17.075Z"
+  }
+},
+{
+  "_id": "PrivateTournament1-PalindromeChecker",
+  "creator": "AlessandroF",
+  "codeKata": {
+    "input": [
+      "cfvd\r\nvce\r\nqqwe\r\nasdd\r\nxczx\r\ngdfh\r\naaaa\r\naabbaa\r\ncdssd\r\ncsdc\r\nzx<\r\ngbg\r\nbnfgn\r\nnfgn\r\nnfg\r\nnfg\r\nn\r\nfgn\r\nfgmt",
+      "cwef\r\nref\r\nv\r\nerv\r\nasfd\r\nerhb\r\naa\r\nsdsd\r\nbdf\r\nbdf\r\nsadg\r\nfdsfgsd\r\ndsg"
+    ],
+    "output": [
+      "cfvd: false\r\nvce: false\r\nqqwe: false\r\nasdd: false\r\nxczx: false\r\ngdfh: false\r\naaaa: true\r\naabbaa: true\r\ncdssd: false\r\ncsdc: false\r\nzx<: false\r\ngbg: true\r\nbnfgn: false\r\nnfgn: false\r\nnfg: false\r\nnfg: false\r\nn: true\r\nfgn: false\r\nfgmt: false",
+      "cwef: false\r\nref: false\r\nv: true\r\nerv: false\r\nasfd: false\r\nerhb: false\r\naa: true\r\nsdsd: false\r\nbdf: false\r\nbdf: false\r\nsadg: false\r\nfdsfgsd: false\r\ndsg: false"
+    ],
+    "description": "Palindrome Checker\n\nObjective:\nWrite a Java program that reads a list of strings from a file and determines whether each string is a palindrome. A palindrome is a word, phrase, number, or other sequences of characters that reads the same forward and backward, ignoring cases, spaces, and punctuation.\n\nRequirements:\n\nInput File: Your program should read from a file named input.txt. This file will contain one string per line. The contents of the file could range from single words to complete sentences.\n\nNormalization: Before checking if a string is a palindrome, you must normalize the string. This involves:\n-Removing all non-alphanumeric characters (e.g., spaces, punctuation).\n-Converting all letters to lowercase.\n\nPalindrome Check: \nImplement a method to check if a given string is a palindrome. This method should compare characters in the string from the beginning and the end, moving towards the center. If all corresponding characters match, the string is a palindrome.\n\nOutput: For each string read from the file, print the original string followed by : true if it is a palindrome or : false if it is not. Each result should be printed on a new line.\n\nExample:\n\nInput file (input.txt):\n\nMadam\nracecar\nA man, a plan, a canal: Panama\nhello\n\nExpected output:\n\nMadam: true\nracecar: true\nA man, a plan, a canal: Panama: true\nhello: false\n",
+    "configurationFile": "name: Send HTTP request to server\r\n\r\non:\r\n  push:\r\n    branches: [ main ]\r\n\r\njobs:\r\n  send-request:\r\n    runs-on: ubuntu-latest\r\n\r\n    steps:\r\n      - name: Set up Git repository\r\n        uses: actions/checkout@v2\r\n\r\n      - name: Set up Java\r\n        uses: actions/setup-java@v2\r\n        with:\r\n          distribution: 'temurin'\r\n          java-version: '11'\r\n\r\n      - name: Install jq\r\n        run: sudo apt-get install -y jq\r\n\r\n      - name: Compile Java code\r\n        run: javac PalindromeChecker.java\r\n\r\n      - name: Run Java code for each input file and save outputs\r\n        run: |\r\n          for file in input*.txt; do\r\n            java PalindromeChecker \"$file\" >\"output_${file}\"\r\n          done\r\n          echo \"output files:\"\r\n          ls -l output_*.txt\r\n          cat output_*.txt\r\n\r\n      - name: Sending outputs to server as JSON\r\n        env:\r\n          KEYWORD: ${{ secrets.KEYWORD }}\r\n          BATTLE: ${{ secrets.BATTLE }}\r\n        run: |\r\n          declare -a output_array=()\r\n          for file in output_*.txt; do\r\n            content=$(<\"$file\")\r\n            output_array+=(\"$content\")\r\n          done\r\n          \r\n          JSON_ARRAY=$(jq -n \\\r\n            --arg kw \"$KEYWORD\" \\\r\n            --arg bt \"$BATTLE\" \\\r\n            --argjson out \"$(jq -nR --slurp --raw-input '$ARGS.positional' --args \"${output_array[@]}\")\" \\\r\n            '{keyword: $kw, battle: $bt, outputs: $out}')\r\n          echo \"created JSON:\"\r\n          echo \"$JSON_ARRAY\"\r\n\r\n          curl -v -X POST -H \"Content-Type: application/json\" -d \"$JSON_ARRAY\" https://4d4f-2-36-179-149.ngrok-free.app/api/GitHub/automatedEvaluation"
+  },
+  "teams": [
+    {
+      "name": "CoolTeam",
+      "members": [
+        "Colsim"
+      ],
+      "scores": [
+        99
+      ],
+      "keyword": "nkNScjdY",
+      "points": 99
+    }
+  ],
+  "registrationDeadline": {
+    "$date": "2024-02-03T23:11:00.000Z"
+  },
+  "submitDate": {
+    "$date": "2024-02-04T13:08:00.000Z"
+  },
+  "maxPlayers": 2,
+  "minPlayers": 1,
+  "_class": "ingsw2.codekatabattle.Entities.Battle",
+  "repositoryLink": "https://github.com/AlessandroFornara/PublicTournament3-PalindromeChecker",
+  "endDate": {
+    "$date": "2024-02-04T14:11:31.465Z"
+  }
+},
+{
+  "_id": "SchoolLab2024-DataTypesAndCastingBattle",
+  "creator": "MrThompson",
+  "codeKata": {
+    "input": [
+      "DataTypes&CastingBattle"
+    ],
+    "output": [
+      "DataTypes&CastingBattle"
+    ],
+    "description": "DataTypes&CastingBattle",
+    "configurationFile": "DataTypes&CastingBattle"
+  },
+  "teams": [
+    {
+      "name": "Friends",
+      "members": [
+        "Sam"
+      ],
+      "scores": [
+        0
+      ],
+      "keyword": "z0LZ*if,",
+      "points": 0,
+      "_class": "ingsw2.codekatabattle.Entities.Team"
+    }
+  ],
+  "registrationDeadline": {
+    "$date": "2024-02-08T12:15:00.000Z"
+  },
+  "submitDate": {
+    "$date": "2024-02-09T19:15:00.000Z"
+  },
+  "maxPlayers": 4,
+  "minPlayers": 2,
+  "_class": "ingsw2.codekatabattle.Entities.Battle"
+},
+{
+  "_id": "myT1-Pointers",
+  "creator": "MrThompson",
+  "codeKata": {
+    "input": [
+      "Pointers"
+    ],
+    "output": [
+      "Pointers"
+    ],
+    "description": "Pointers",
+    "configurationFile": "Pointers"
+  },
+  "teams": [
+    {
+      "name": "Friends",
+      "members": [
+        "Sam",
+        "Colsim"
+      ],
+      "scores": [
+        0,
+        0
+      ],
+      "keyword": "z0LZ*if,",
+      "points": 0,
+      "_class": "ingsw2.codekatabattle.Entities.Team"
+    },
+    {
+      "name": "BestTeam",
+      "members": [
+        "Student1"
+      ],
+      "scores": [
+        0
+      ],
+      "keyword": "D{Hn:S6F",
+      "points": 0,
+      "_class": "ingsw2.codekatabattle.Entities.Team"
+    },
+    {
+      "name": "FastTeam",
+      "members": [
+        "Fast"
+      ],
+      "scores": [
+        0
+      ],
+      "keyword": "&ApEaubT",
+      "points": 0,
+      "_class": "ingsw2.codekatabattle.Entities.Team"
+    }
+  ],
+  "registrationDeadline": {
+    "$date": "2024-02-08T12:15:00.000Z"
+  },
+  "submitDate": {
+    "$date": "2024-02-09T19:15:00.000Z"
+  },
+  "maxPlayers": 4,
+  "minPlayers": 2,
+  "_class": "ingsw2.codekatabattle.Entities.Battle"
+}]

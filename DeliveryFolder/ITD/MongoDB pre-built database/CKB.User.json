@@ -1,0 +1,81 @@
+[{
+  "_id": "AlessandroF",
+  "email": "alessandro1.fornara@mail.polimi.it",
+  "name": "Alessandro",
+  "surname": "Fornara",
+  "password": "$2a$10$epFu8O1kxsZFcNDFZK7ncOubBzRJGOrxwY02fqBb54DcpAgCVbOmO",
+  "role": "EDUCATOR",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "Student1",
+  "email": "alessandro.fornara01@gmail.com",
+  "name": "Nome",
+  "surname": "Cognome",
+  "password": "$2a$10$MYSmLp5bpHBE3s/L/D0aOuavBsR4ZnWHUuXRX/oum3FF55ib02owG",
+  "role": "STUDENT",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "Educator1",
+  "email": "educator1@gmail.com",
+  "name": "educator",
+  "surname": "1",
+  "password": "$2a$10$x7iEt95ydup5LykUbBd9kurONtf9CsY2UVU0JrBF8m4RZ.y7.H2pi",
+  "role": "EDUCATOR",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "Colsim",
+  "email": "simone.colecchia@mail.polimi.it",
+  "name": "Simone",
+  "surname": "Colecchia",
+  "password": "$2a$10$Tm/J3Gzmz0w8hcsxksKI2uknXLOPROj6JVgDVgEDVdmVB2keOGBL6",
+  "role": "STUDENT",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "MrThompson",
+  "email": "mt@mail.com",
+  "name": "John",
+  "surname": "Thompson",
+  "password": "$2a$10$obol.v53tOnJ.JGd1SYmxObjKNhs7gRmRh97nteNbVCXugdgqYLfm",
+  "role": "EDUCATOR",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "Sam",
+  "email": "sam@mail.com",
+  "name": "Samuel",
+  "surname": "Wilde",
+  "password": "$2a$10$kzwYFOry2Rq9xVajMoaQgu9u.UHceOhR1bw5EijORDPZ9EBoSkHiK",
+  "role": "STUDENT",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "MyCodeTeacher",
+  "email": "miller@mail.com",
+  "name": "Frank",
+  "surname": "Miller",
+  "password": "$2a$10$Mv0XRJvx2DZTZBedwOEoIes3Fb4J43rpkGXzthuYvLnPnhcV8bVDO",
+  "role": "EDUCATOR",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "BrownSensei",
+  "email": "brown@mail.com",
+  "name": "Elizabeth",
+  "surname": "Brown",
+  "password": "$2a$10$8VVQJo/H0cSeJ3RbE7qG/OvVd7DZXDXmV1mqH4Fpeeud2u7UCSYKm",
+  "role": "EDUCATOR",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+},
+{
+  "_id": "Fast",
+  "email": "fast@mail.com",
+  "name": "Fast",
+  "surname": "Fast",
+  "password": "$2a$10$JrD8s52Q.d7RezNdEPGKg.atc3usA.zGcLNvVJfi/gnuna.S9Gt/O",
+  "role": "STUDENT",
+  "_class": "ingsw2.codekatabattle.Entities.User"
+}]

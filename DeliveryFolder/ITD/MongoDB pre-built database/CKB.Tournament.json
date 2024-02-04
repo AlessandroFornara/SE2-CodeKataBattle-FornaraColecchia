@@ -1,0 +1,188 @@
+[{
+  "_id": "PublicTournament1",
+  "admin": "AlessandroF",
+  "moderators": [
+    "MrThompson",
+    "MyCodeTeacher"
+  ],
+  "rank": {
+    "Colsim": 0,
+    "Student1": 0
+  },
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-03T14:20:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "PublicTournament2",
+  "admin": "AlessandroF",
+  "moderators": [
+    "BrownSensei"
+  ],
+  "rank": {
+    "Colsim": 98
+  },
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-03T22:25:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament",
+  "endDate": {
+    "$date": "2024-02-04T14:29:55.439Z"
+  }
+},
+{
+  "_id": "PrivateTournament1",
+  "admin": "AlessandroF",
+  "moderators": [
+    "MyCodeTeacher"
+  ],
+  "rank": {
+    "Colsim": 99,
+    "Student1": 0
+  },
+  "visibility": "PRIVATE",
+  "registrationDeadline": {
+    "$date": "2024-02-03T23:10:00.000Z"
+  },
+  "keyword": "Az}SmBVY",
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "PublicTournament4",
+  "admin": "AlessandroF",
+  "moderators": [
+    "BrownSensei"
+  ],
+  "rank": {},
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-07T18:55:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "PublicTournament5",
+  "admin": "AlessandroF",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-08T18:55:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "PublicTournament6",
+  "admin": "AlessandroF",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-09T18:55:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "myT1",
+  "admin": "MrThompson",
+  "moderators": [
+    "MyCodeTeacher"
+  ],
+  "rank": {
+    "Sam": 0,
+    "Student1": 0,
+    "Colsim": 0,
+    "Fast": 0
+  },
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-06T09:00:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "myT2",
+  "admin": "Educator1",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-07T09:00:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "myT3",
+  "admin": "BrownSensei",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-08T09:00:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "myT4",
+  "admin": "Educator1",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PUBLIC",
+  "registrationDeadline": {
+    "$date": "2024-02-09T09:00:00.000Z"
+  },
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "secretT1",
+  "admin": "Educator1",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PRIVATE",
+  "registrationDeadline": {
+    "$date": "2024-02-06T11:00:00.000Z"
+  },
+  "keyword": "$1P|K.Xr",
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "secretT2",
+  "admin": "Educator1",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PRIVATE",
+  "registrationDeadline": {
+    "$date": "2024-02-07T11:00:00.000Z"
+  },
+  "keyword": "v<C!w+l(",
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "secretT3",
+  "admin": "Educator1",
+  "moderators": [],
+  "rank": {},
+  "visibility": "PRIVATE",
+  "registrationDeadline": {
+    "$date": "2024-02-08T11:00:00.000Z"
+  },
+  "keyword": "m)bt.w)8",
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+},
+{
+  "_id": "SchoolLab2024",
+  "admin": "MrThompson",
+  "moderators": [],
+  "rank": {
+    "Sam": 0
+  },
+  "visibility": "PRIVATE",
+  "registrationDeadline": {
+    "$date": "2024-02-07T19:00:00.000Z"
+  },
+  "keyword": "6-!&rxLj",
+  "_class": "ingsw2.codekatabattle.Entities.Tournament"
+}]
