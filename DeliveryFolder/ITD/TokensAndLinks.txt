@@ -1,2 +1,2 @@
 MongoDB online cluster: mongodb+srv://codekatabattle:iXH4DZpYVq9Lv415@ckbcluster.aqk9f28.mongodb.net/
-Ngrok authentication key: 2a35ye1ew8LBiKwWrB13SyAmvgH_7EGDnCHtTSCcMfqbMLGtf
+Ngrok authentication token: 2a35ye1ew8LBiKwWrB13SyAmvgH_7EGDnCHtTSCcMfqbMLGtf
