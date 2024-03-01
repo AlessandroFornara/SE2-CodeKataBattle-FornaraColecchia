@@ -12,7 +12,7 @@ CKB - CodeKataBattle is the final test of "[Software Engineering 2](https://www4
 ## Project Specification
 CodeKataBattle (CKB) is platform designed to help students improve their software development skills by training with peers on code kata. Educators use the platform to challenge students by creating code kata battles in which teams of students can compete against each other, thus proving (and improving) their skills.
 
-<img src="https://github.com/AlessandroFornara/FornaraColecchia/blob/main/src/frontend/src/assets/logo.png" align="right"/>
+<img src="https://github.com/AlessandroFornara/FornaraColecchia/blob/main/src/frontend/src/assets/logo.png" width=500 height=253 align="right"/>
 
 You can find the full specification [here](https://github.com/AlessandroFornara/FornaraColecchia/blob/main/Specs).
 
