@@ -41,7 +41,7 @@ Instructions can be found in the following files:
 #### Legend
 ❌ Not Implemented &nbsp;&nbsp;&nbsp;&nbsp; ⚠️ Implementing&nbsp;&nbsp;&nbsp;&nbsp;✅ Implemented
 
-## Software used
+## Software Used
 **WebSequenceDiagrams** - sequence diagrams
 
 **StarUML** - UML diagrams
